@@ -1,0 +1,17 @@
+repository_type: pipeline
+
+nf_core_version: 4.1.0
+
+lint: {}
+
+template:
+  org: nf-core
+  name: balti
+  description: A TN-subtraction workflow of long-read WGS ONT sequencing data that
+    produces a comprehensive molecular tumour profile pdf report of various metrics.
+  author: Dylan House
+  version: 1.0.0dev
+  force: true
+  outdir: .
+  skip_features: []
+  is_nfcore: true
