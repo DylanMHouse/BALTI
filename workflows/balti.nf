@@ -6,6 +6,10 @@
 include { FASTQC                 } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
+
+include { SAMTOOLS_FAIDX         } from '../modules/nf-core/samtools/faidx/main'
+include { ALIGNMENT		 } from '../subworkflows/local/alignment'
+
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_balti_pipeline'
@@ -27,13 +31,27 @@ workflow BALTI {
 
     main:
 
+    def valid_input_types = ['fastq', 'ubam', 'bam' ]
+    if (!(params.input_type in valid_input_types)) {
+        error("Invalid --input_type '${params.input_type}'. Valid options: ${valid_input_types.join(', ')}")
+    }
+
+    def valid_aligners = [
+        'fastq': ['minimap_nogpu', 'minimap_gpu'],
+	'ubam': ['minimap_nogpu', 'minimap_gpu'],
+    ]
+
+    if (valid_aligners.containsKey(params.input_type) && !(params.alignment_software in valid_aligners[params.input_type])) {
+        error("--input_type ${params.input_type} requires alignment_software to be one of ${valid_aligners[params.input_type].join(', ')} (got '${params.alignment_software}')")
+	}
+
+
     def ch_versions = channel.empty()
     def ch_multiqc_files = channel.empty()
-    //
-    // MODULE: Run FastQC
-    //
-    FASTQC(ch_samplesheet)
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.map{ _meta, file -> file })
+    def ch_multiqc_report = channel.empty()
+    def ch_minimap2_index = channel.empty()
+    def ch_aligned = channel.empty()
+    def ch_aligned_index = channel.empty()
 
     //
     // Collate and save software versions
@@ -64,6 +82,38 @@ workflow BALTI {
             newLine: true
         )
 
+
+    // fasta definitions
+    def fasta_path = params.genome
+        ? params.genomes.containsKey(params.genome)
+	    ? params.genomes[params.genome].fasta
+	    : error("Genome '${params.genome}' not found in iGenomes config. Check --genome or set --igenomes_ignore false")
+	    : params.fasta_file
+
+    def ch_fasta = channel.fromPath(fasta_path, checkIfExists: true)
+        .map { fasta -> tuple([id: "ref"], fasta) }
+	.first()
+
+    if (params.intervals) {
+        def ch_intervals = channel.fromPath(params.intervals_list, checkIfExists: true)
+	    .map { bed -> tuple([id: "bed"], bed)}
+    }
+    else {
+        def ch_intervals = [[:], []]
+	}
+
+
+
+    //
+    // MODULE: Run FastQC
+    //
+
+    if (params.qc && params.input_type == 'fastq') {
+
+    FASTQC(ch_samplesheet)
+    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.map{ _meta, file -> file })
+
+
     //
     // MODULE: MultiQC
     //
@@ -90,7 +140,44 @@ workflow BALTI {
             ]
         }
     )
-    emit:multiqc_report = MULTIQC.out.report.map { _meta, report -> [report] }.toList() // channel: /path/to/multiqc_report.html
+
+
+    }
+
+    /*
+    ######################################################################
+    			INDEXING & ALIGNMENT
+    ######################################################################
+    */
+
+    SAMTOOLS_FAIDX ( ch_fasta.map{ meta, fasta -> [meta, fasta, [] ] }, false)
+    ch_fai = SAMTOOLS_FAIDX.out.fai
+
+    ch_fasta_fai = ch_fasta
+        .join(ch_fai, by: 0)
+	.map { meta, fasta, idx ->
+	    tuple(meta, fasta, idx)
+	}
+
+    if (params.input_type == 'fastq') {
+
+        ALIGNMENT(ch_samplesheet, ch_fasta)
+
+	ch_aligned = ALIGNMENT.out.bam.map { meta, bam ->
+	    def meta_data = [id: meta.id]
+	    [meta_data, bam]
+	}
+	ch_aligned_index = ALIGNMENT.out.bai.map { meta, bai ->
+	    def meta_data = [id: meta.id]
+	    [meta_data, bai]
+	}
+    }
+
+
+
+    emit:
+    //multiqc_report = MULTIQC.out.report.map { _meta, report -> [report] }.toList() // channel: /path/to/multiqc_report.html
+    multiqc_report = ch_multiqc_report
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
 }
 

@@ -11,23 +11,33 @@
                 "type": "string",
                 "pattern": "^\\S+$",
                 "errorMessage": "Sample name must be provided and cannot contain spaces",
-                "meta": ["id"]
+                "meta": ["id"],
+		"description": "Unique sample identifier"
             },
-            "fastq_1": {
-                "type": "string",
-                "format": "file-path",
-                "exists": true,
-                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
-            },
-            "fastq_2": {
-                "type": "string",
-                "format": "file-path",
-                "exists": true,
-                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
-            }
-        },
-        "required": ["sample", "fastq_1"]
+            "file_path": {
+	    	"anyOf": [
+			{
+			    "type": "string",
+			    "format": "directory-path",
+                            "description": "Directory containing input files"	                      },
+			{
+			    "type": "string",
+			    "format": "file-path",
+			    "pattern": "^\\S+\\.bam$",
+			    "description": "Single BAM file"
+			},
+			{
+			    "type": "string",
+			    "format": "file-path",
+			    "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.f(ast)?q?a\\.gz$",
+			    "description": "Single FASTQ.gz file"
+			}
+		],
+		"description": "Path to input files or directory",
+		"help_text": "Full path to input file or directory. Can beL (1) A directory containing multiple files of the input types BAM, and fastq.gz. (2) A list of BAM files, or (3), a list of fastq.gz or .fq.gz files"
+	    }
+	},
+	"required": ["sample", "file_path"],
+	"additionalProperties": true
     }
 }

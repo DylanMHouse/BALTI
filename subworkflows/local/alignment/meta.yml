@@ -1,0 +1,48 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "alignment"
+description: Aligns fasta files to a reference genome with either minimap2, or parabricks minimap2.
+keywords:
+  - minimap2
+  - parabricks
+  - bam
+  - fasta
+components:
+  - minimap2/align
+  - parabricks/minimap2
+input:
+  - ch_reads:
+      type: file
+      description: |
+        The input channel containing the f(ast)?q?a.gz files
+        Structure: [ val(meta), path(fastq) ]
+      pattern: "*.{f(ast)?q?a}"
+  - ch_fasta:
+      type: file
+      description: |
+        The input channel containing the reference genome.
+      Structire: [ val(meta), path(fasta) ]
+      pattern: "*.{fasta|mmi|fa}"
+
+output:
+  - bam:
+      type: file
+      description: |
+        Channel containing BAM files
+        Structure: [ val(meta), path(bam) ]
+      pattern: "*.bam"
+  - bai:
+      type: file
+      description: |
+        Channel containing indexed BAM (BAI) files
+        Structure: [ val(meta), path(bai) ]
+      pattern: "*.bai"
+  - versions:
+      type: file
+      description: |
+        File containing software versions
+        Structure: [ path(versions.yml) ]
+      pattern: "versions.yml"
+authors:
+  - "@DylanHouse-xyz"
+maintainers:
+  - "@DylanHouse-xyz"
