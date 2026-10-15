@@ -6,6 +6,8 @@
 include { FASTQC                 } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
+
+include { MOSDEPTH               } from '../modules/nf-core/mosdepth/main'
 include { BAM_STATS_SAMTOOLS     } from '../subworkflows/nf-core/bam_stats_samtools'
 
 include { SAMTOOLS_FAIDX         } from '../modules/nf-core/samtools/faidx/main'
@@ -185,17 +187,37 @@ workflow BALTI {
         }
 
 
-    ch_input_bam = ch_aligned
+    ch_input_bam_bed = ch_aligned
         .join(ch_aligned_index, by: 0)
         .map { meta, bam, bai ->
             tuple(meta, bam, bai, [])
         }
+    ch_input_bam = ch_aligned
+        .join(ch_aligned_index, by: 0)
+        .map { meta, bam, bai ->
+            tuple(meta, bam, bai)
+        }
+
     // Generate some statistics of aligned reads
     BAM_STATS_SAMTOOLS(
         ch_input_bam,
         ch_fasta_fai
     )
     }
+
+/*
+#################################################################
+        COVERAGE
+#################################################################
+`*/
+
+    MOSDEPTH(
+        ch_input_bam_bed,
+        ch_fasta,
+        []
+    )
+
+
 
     emit:
     multiqc_report = ch_multiqc_report
