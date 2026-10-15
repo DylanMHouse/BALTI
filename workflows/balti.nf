@@ -6,9 +6,11 @@
 include { FASTQC                 } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
+include { BAM_STATS_SAMTOOLS     } from '../subworkflows/nf-core/bam_stats_samtools'
 
 include { SAMTOOLS_FAIDX         } from '../modules/nf-core/samtools/faidx/main'
 include { ALIGNMENT		 } from '../subworkflows/local/alignment'
+include { PREPAREBAM             } from '../subworkflows/local/preparebam'
 
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -146,37 +148,56 @@ workflow BALTI {
 
     /*
     ######################################################################
-    			INDEXING & ALIGNMENT
+    			INDEXING,  ALIGNMENT & QC CHECKS
     ######################################################################
     */
 
-    SAMTOOLS_FAIDX ( ch_fasta.map{ meta, fasta -> [meta, fasta, [] ] }, false)
-    ch_fai = SAMTOOLS_FAIDX.out.fai
 
-    ch_fasta_fai = ch_fasta
-        .join(ch_fai, by: 0)
-	.map { meta, fasta, idx ->
-	    tuple(meta, fasta, idx)
-	}
+    if (params.minimap2) {
+        SAMTOOLS_FAIDX ( ch_fasta.map{ meta, fasta -> [meta, fasta, [] ] }, false)
+        ch_fai = SAMTOOLS_FAIDX.out.fai
 
-    if (params.input_type == 'fastq') {
+        ch_fasta_fai = ch_fasta
+            .join(ch_fai, by: 0)
+	    .map { meta, fasta, idx ->
+	        tuple(meta, fasta, idx)
+	    }
 
-        ALIGNMENT(ch_samplesheet, ch_fasta)
+        if (params.input_type == 'fastq') {
 
-	ch_aligned = ALIGNMENT.out.bam.map { meta, bam ->
-	    def meta_data = [id: meta.id]
-	    [meta_data, bam]
-	}
-	ch_aligned_index = ALIGNMENT.out.bai.map { meta, bai ->
-	    def meta_data = [id: meta.id]
-	    [meta_data, bai]
-	}
+            ALIGNMENT(ch_samplesheet, ch_fasta)
+
+        } else if (params.input_type == 'bam') {
+            PREPAREBAM(
+                ch_samplesheet,
+                ch_fasta_fai
+            )
+            ALIGNMENT(PREPAREBAM.out.fastq, ch_fasta)
+        }
+
+    ch_aligned = ALIGNMENT.out.bam.map { meta, bam ->
+        def meta_data = [id: meta.id]
+        [meta_data, bam] }
+
+    ch_aligned_index = ALIGNMENT.out.bai.map { meta, bai ->
+        def meta_data = [id: meta.id]
+        [meta_data, bai]
+        }
+
+
+    ch_input_bam = ch_aligned
+        .join(ch_aligned_index, by: 0)
+        .map { meta, bam, bai ->
+            tuple(meta, bam, bai, [])
+        }
+    // Generate some statistics of aligned reads
+    BAM_STATS_SAMTOOLS(
+        ch_input_bam,
+        ch_fasta_fai
+    )
     }
 
-
-
     emit:
-    //multiqc_report = MULTIQC.out.report.map { _meta, report -> [report] }.toList() // channel: /path/to/multiqc_report.html
     multiqc_report = ch_multiqc_report
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
 }
