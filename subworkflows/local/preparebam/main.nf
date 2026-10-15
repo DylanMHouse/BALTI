@@ -1,8 +1,8 @@
 
 // Bam alignment for unaligned bam input files from Dorado basecaller. Workflow will collate and convert bam files to fastq. Subsequent fastq and nanoplots will be made to assess initial quality
 
-
-include { SAMTOOLS_COLLATEFASTQ } from '../../../modules/nf-core/samtools/collatefastq/main'
+include { SAMTOOLS_CAT          } from '../../../modules/nf-core/samtools/cat/main'
+include { SAMTOOLS_FASTQ        } from '../../../modules/nf-core/samtools/fastq/main'
 include { FASTQC                } from '../../../modules/nf-core/fastqc/main'
 include { NANOPLOT              } from '../../../modules/nf-core/nanoplot/main'
 
@@ -17,12 +17,15 @@ workflow PREPAREBAM {
 
     ch_versions = channel.empty()
 
-    SAMTOOLS_COLLATEFASTQ(
-        ch_bam,
-        ch_fasta,
-        params.samtools_collate_interleave
-    )
-        ch_fastq = SAMTOOLS_COLLATEFASTQ.out.fastq_other
+    SAMTOOLS_CAT(ch_bam)
+
+
+    SAMTOOLS_FASTQ(SAMTOOLS_CAT.out.bam,
+                    false)
+
+    ch_fastq = SAMTOOLS_FASTQ.out.other
+
+
 
     // qc checks for fastq file
     FASTQC(ch_fastq)

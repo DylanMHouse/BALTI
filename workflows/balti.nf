@@ -217,6 +217,20 @@ workflow BALTI {
         []
     )
 
+/*
+##################
+SV CALLS WITH SNIFFLES
+##################
+*/
+
+    if (params.sniffles) {
+        ch_tandem_repeats = channel.fromPath(params.tandem_file, checkIfExists: true)
+            .map { bed -> tuple([id: "trf"], bed)
+        }
+
+        // Work on Sniffles
+    }
+
 
 
     emit:
