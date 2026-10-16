@@ -1,5 +1,5 @@
 include { CLAIR3 } from '../../../modules/nf-core/clair3/main'
-include { BCFTOOLS_VIEW as BCFTOOLS_VIEW_CLAIR3 } from '../../../modules/nf-core/clair3/main'
+include { BCFTOOLS_VIEW as BCFTOOLS_VIEW_CLAIR3 } from '../../../modules/nf-core/bcftools/view/main'
 
 
 workflow CALLSNV {
@@ -21,18 +21,22 @@ workflow CALLSNV {
         ch_ref_index
     )
     ch_vcf = CLAIR3.out.vcf
-    ch_idx = CLAIR3.out.idx
+    ch_tbi = CLAIR3.out.tbi
 
-    ch_clair3_output = ch_vcf.join(ch_idx, by: 0)
+    def regions = params.regions ?: []
+    def targets = params.targets ?: []
+    def sample_names = params.sample_names ?: []
+
+    ch_clair3_output = ch_vcf.join(ch_tbi, by: 0)
                             .map { meta, vcf, index ->
                                 tuple(meta, vcf, index)
                             }
 
     BCFTOOLS_VIEW_CLAIR3(
         ch_clair3_output,
-        params.regions ?: [],
-        params.targets ?: [],
-        params.sample_names ?: []
+        regions,
+        targets,
+        sample_names
     )
 
 

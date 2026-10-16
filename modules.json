@@ -15,6 +15,11 @@
                         "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
                         "installed_by": ["modules"]
                     },
+                    "deepsomatic": {
+                        "branch": "master",
+                        "git_sha": "c604daf6b1fd88f72b93d96beb7d456ad82ef468",
+                        "installed_by": ["modules"]
+                    },
                     "fastqc": {
                         "branch": "master",
                         "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
@@ -48,6 +53,16 @@
                     "nanoplot": {
                         "branch": "master",
                         "git_sha": "cc4d441624bd2a0db697502bdde9005a5a5f0b36",
+                        "installed_by": ["modules"]
+                    },
+                    "parabricks/deepsomatic": {
+                        "branch": "master",
+                        "git_sha": "3ccf6cbb9868aa36cf77b9490af7b47595eaab17",
+                        "installed_by": ["modules"]
+                    },
+                    "parabricks/deepvariant": {
+                        "branch": "master",
+                        "git_sha": "3e0ec6464725c64d81abe928e15a6750d5fdd272",
                         "installed_by": ["modules"]
                     },
                     "parabricks/minimap2": {

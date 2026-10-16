@@ -16,8 +16,6 @@
 */
 
 include { BALTI  } from './workflows/balti'
-include { GERMLINE } from './workflows/germline'
-include { SOMATIC } from './workflows/somatic'
 include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_balti_pipeline'
 include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_balti_pipeline'
 include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_balti_pipeline'
@@ -51,12 +49,13 @@ workflow NFCORE_BALTI {
 
     //
     // Some defaults among all pipelines
-    samplesheet
-        .multiMap { meta, tumour, germline ->
-            tumour: tuple(meta, tumour)
-            germline: tuple(meta, germline)
-            }
-            .set{ input }
+
+    ch_samples = samplesheet.flatMap { meta, tumour, normal ->
+    [ [ meta + [patient: meta.id, id: "${meta.id}_T", type: 'tumour'], tumour ],
+      [ meta + [patient: meta.id, id: "${meta.id}_N", type: 'normal'], normal ] ]
+}
+
+
 
     def valid_input_types = ['fastq', 'ubam', 'bam' ]
     if (!(params.input_type in valid_input_types)) {
@@ -75,44 +74,16 @@ workflow NFCORE_BALTI {
     //
     // WORKFLOW: Run pipeline
     //
-    multiqc_report = channel.empty()
-
-    if (params.somatic_pipeline) {
-        SOMATIC (
-            input.tumour,
-            params.multiqc_config,
-            params.multiqc_logo,
-            params.multiqc_methods_description,
-            params.outdir,
-            )
-    multiqc_report = SOMATIC.out.multiqc_report
-    }
-    else if (params.germline_pipeline) {
-            GERMLINE(
-                input.germline,
-                params.multiqc_config,
-                params.multiqc_logo,
-                params.multiqc_methods_description,
-                params.outdir,
-                )
-    multiqc_report = GERMLINE.out.multiqc_report
-    }
-    else if (params.balti) {
-
         BALTI (
-            samplesheet,
+            ch_samples,
             params.multiqc_config,
             params.multiqc_logo,
             params.multiqc_methods_description,
             params.outdir,
         )
-    multiqc_report = BALTI.out.multiqc_report
-    }
-    else {
-        error("Please select one or more of the pipeline types - somatic for somatic calls, germline for germline calls, and BALTI for TN.")}
 
     emit:
-    multiqc_report = multiqc_report // channel: /path/to/multiqc_report.html
+    multiqc_report = BALTI.out.multiqc_report // channel: /path/to/multiqc_report.html
 }
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
