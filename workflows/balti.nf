@@ -3,20 +3,21 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { FASTQC                 } from '../modules/nf-core/fastqc/main'
-include { MULTIQC                } from '../modules/nf-core/multiqc/main'
-include { paramsSummaryMap       } from 'plugin/nf-schema'
+include { FASTQC                      } from '../modules/nf-core/fastqc/main'
+include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
+include { paramsSummaryMap            } from 'plugin/nf-schema'
 
-include { MOSDEPTH               } from '../modules/nf-core/mosdepth/main'
-include { BAM_STATS_SAMTOOLS     } from '../subworkflows/nf-core/bam_stats_samtools'
+include { MOSDEPTH                    } from '../modules/nf-core/mosdepth/main'
+include { BAM_STATS_SAMTOOLS          } from '../subworkflows/nf-core/bam_stats_samtools'
 
-include { SAMTOOLS_FAIDX         } from '../modules/nf-core/samtools/faidx/main'
-include { ALIGNMENT		 } from '../subworkflows/local/alignment'
-include { PREPAREBAM             } from '../subworkflows/local/preparebam'
+include { SAMTOOLS_FAIDX              } from '../modules/nf-core/samtools/faidx/main'
+include { ALIGNMENT		      } from '../subworkflows/local/alignment'
+include { PREPAREBAM                  } from '../subworkflows/local/preparebam'
 
-include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_balti_pipeline'
+
+include { paramsSummaryMultiqc        } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML      } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { methodsDescriptionText      } from '../subworkflows/local/utils_nfcore_balti_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -35,19 +36,6 @@ workflow BALTI {
 
     main:
 
-    def valid_input_types = ['fastq', 'ubam', 'bam' ]
-    if (!(params.input_type in valid_input_types)) {
-        error("Invalid --input_type '${params.input_type}'. Valid options: ${valid_input_types.join(', ')}")
-    }
-
-    def valid_aligners = [
-        'fastq': ['minimap_nogpu', 'minimap_gpu'],
-	'ubam': ['minimap_nogpu', 'minimap_gpu'],
-    ]
-
-    if (valid_aligners.containsKey(params.input_type) && !(params.alignment_software in valid_aligners[params.input_type])) {
-        error("--input_type ${params.input_type} requires alignment_software to be one of ${valid_aligners[params.input_type].join(', ')} (got '${params.alignment_software}')")
-	}
 
 
     def ch_versions = channel.empty()
@@ -106,8 +94,6 @@ workflow BALTI {
         def ch_intervals = [[:], []]
 	}
 
-
-
     //
     // MODULE: Run FastQC
     //
@@ -115,6 +101,7 @@ workflow BALTI {
     if (params.qc && params.input_type == 'fastq') {
 
     FASTQC(ch_samplesheet)
+
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.map{ _meta, file -> file })
 
 
@@ -130,6 +117,7 @@ workflow BALTI {
         : file("${projectDir}/assets/methods_description_template.yml", checkIfExists: true)
     def ch_methods_description = channel.value(methodsDescriptionText(ch_multiqc_custom_methods_description))
     ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml', sort: true))
+
     MULTIQC(
         ch_multiqc_files.flatten().collect().map { files ->
             [
@@ -144,6 +132,7 @@ workflow BALTI {
             ]
         }
     )
+
 
 
     }
@@ -217,21 +206,12 @@ workflow BALTI {
         []
     )
 
+
 /*
-##################
-SV CALLS WITH SNIFFLES
-##################
+##################################
+SNV GERMLINE & SOMATIC CALLS
+##################################
 */
-
-    if (params.sniffles) {
-        ch_tandem_repeats = channel.fromPath(params.tandem_file, checkIfExists: true)
-            .map { bed -> tuple([id: "trf"], bed)
-        }
-
-        // Work on Sniffles
-    }
-
-
 
     emit:
     multiqc_report = ch_multiqc_report

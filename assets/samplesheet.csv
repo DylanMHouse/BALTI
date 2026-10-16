@@ -1,2 +1,2 @@
-sample,file_path
-sample_name,file_path_directory_or_files
+sample,tumour,germline
+sample_name,file_path_to_tumour,file_path_to_germline

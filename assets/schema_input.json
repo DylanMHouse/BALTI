@@ -14,7 +14,7 @@
                 "meta": ["id"],
 		"description": "Unique sample identifier"
             },
-            "file_path": {
+            "tumour": {
 	    	"anyOf": [
 			{
 			    "type": "string",
@@ -35,9 +35,30 @@
 		],
 		"description": "Path to input files or directory",
 		"help_text": "Full path to input file or directory. Can beL (1) A directory containing multiple files of the input types BAM, and fastq.gz. (2) A list of BAM files, or (3), a list of fastq.gz or .fq.gz files"
+	    },
+	    "germline": {
+	    	"anyOf": [
+			{
+			    "type": "string",
+			    "format": "directory-path",
+			    "description": "Directory containing input files"
+			},
+			{
+			    "type": "string",
+			    "format": "file-path",
+			    "pattern": "^\\S+\\.bam$",
+			    "description": "Single BAM file"
+			},
+			{
+			    "type": "string",
+			    "format": "file-path",
+			    "pattern":"^([\\S\\s]*\\/)?[^\\s\\/]+\\.f(ast)?q?a\\.gz$",
+			    "description": "Single FASTQ.gz file"
+			}
+		]
 	    }
 	},
-	"required": ["sample", "file_path"],
+	"required": ["sample", "tumour", "germline"],
 	"additionalProperties": true
     }
 }

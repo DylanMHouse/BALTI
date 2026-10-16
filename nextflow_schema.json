@@ -22,7 +22,7 @@
                     "description": "Path to comma-separated file containing information about the samples in the experiment.",
                     "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row. See [usage docs](https://nf-co.re/balti/usage#samplesheet-input).",
                     "fa_icon": "fas fa-file-csv",
-                    "default": "/home/dylan/documents/projects/nf-core-balti/assets/samplesheet.csv"
+                    "default": "/home/dylan/documents/projects/balti/nf-core-balti/assets/samplesheet.csv"
                 },
                 "outdir": {
                     "type": "string",
@@ -271,6 +271,30 @@
         "alignment_software": {
             "type": "string",
             "default": "minimap_nogpu"
+        },
+        "regions": {
+            "type": "string"
+        },
+        "targets": {
+            "type": "string"
+        },
+        "sample_names": {
+            "type": "string"
+        },
+        "samtools_collate_interleave": {
+            "type": "boolean"
+        },
+        "clair3_model": {
+            "type": "string"
+        },
+        "somatic_pipeline": {
+            "type": "boolean"
+        },
+        "germline_pipeline": {
+            "type": "boolean"
+        },
+        "balti_pipeline": {
+            "type": "boolean"
         }
     }
 }

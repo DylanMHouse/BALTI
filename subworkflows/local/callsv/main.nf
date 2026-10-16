@@ -7,7 +7,7 @@
 include { SAMTOOLS_SORT      } from '../../../modules/nf-core/samtools/sort/main'
 include { SAMTOOLS_INDEX     } from '../../../modules/nf-core/samtools/index/main'
 
-workflow SNIFFLESSV {
+workflow CALLSV {
 
     take:
     // TODO nf-core: edit input (take) channels

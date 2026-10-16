@@ -23,6 +23,33 @@ include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipelin
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+
+def resolveFiles(String sample_id, String label, path_str) {
+    def exts = ['bam', 'fastq.gz', 'fq.gz', 'fasta.gz', 'fastq', 'fq']
+    def p = file(path_str, checkIfExists: true)
+    def found
+
+   if (p.isDirectory()) {
+        found = exts
+            .collectMany { ext -> files("${p}/*.${ext}") }
+            .unique()
+            .sort { f -> f.name }
+    } else {
+        if (!exts.any { ext -> p.name.endsWith(".${ext}") }) {
+        error("Sample '${sample_id}': unsupported ${label} file type ${p.name}")
+        }
+        found = [p]
+        }
+
+    if (!found) {
+        error("Sample '${sample_id}': no bam/fastq/fasta files found in ${path_str} (${label})")
+        }
+    return found
+    }
+
+
+
+
 workflow PIPELINE_INITIALISATION {
 
     take:
@@ -108,30 +135,14 @@ workflow PIPELINE_INITIALISATION {
     // Create channel from input file provided through params.input
     //
 
+
     ch_samplesheet = channel
         .fromList(samplesheetToList(input, "${projectDir}/assets/schema_input.json"))
-        .map { meta, file_path ->
-            def exts = ['bam', 'fastq.gz', 'fq.gz', 'fasta.gz', 'fastq', 'fq']
-            def p = file(file_path, checkIfExists: true)
+        .map { meta, tumour, germline ->
+            def tumour_files   = resolveFiles(meta.id, 'tumour', tumour)
+            def germline_files = resolveFiles(meta.id, 'germline', germline)
 
-            def found
-            if (p.isDirectory()) {
-                found = exts
-                    .collectMany { ext -> files("${p}/*.${ext}") }
-                    .unique()
-                    .sort { f -> f.name }
-            } else {
-                if (!exts.any { p.name.endsWith(".${it}") }) {
-                    error("Sample '${meta.id}': unsupported file type ${p.name}")
-                }
-                found = [p]
-            }
-
-            if (!found) {
-                error("Sample '${meta.id}': no bam/fastq/fasta files found in ${file_path}")
-        }
-
-            [ meta, found ]
+            [ meta, tumour_files, germline_files ]
         }
 
     emit:
