@@ -24,9 +24,18 @@ include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipelin
 */
 
 
-def resolveFiles(String sample_id, String label, path_str) {
-    def exts = ['bam', 'fastq.gz', 'fq.gz', 'fasta.gz', 'fastq', 'fq']
-    def p = file(path_str, checkIfExists: true)
+def resolveFiles(String sample_id, String label, path_str, samplesheet_dir) {
+    // --input_type bam expects unaligned BAMs; fastq expects gzipped fastq
+    def exts = params.input_type == 'bam' ? ['bam'] : ['fastq.gz', 'fq.gz']
+    // Relative paths resolve against the launch directory (nf-schema makes them absolute),
+    // falling back to the samplesheet's directory so test sheets work from any launch directory
+    def p = file(path_str)
+    if (!p.exists() && p.startsWith(workflow.launchDir)) {
+        p = samplesheet_dir.resolve(workflow.launchDir.relativize(p).toString())
+        }
+    if (!p.exists()) {
+        error("Sample '${sample_id}': ${label} path not found: ${path_str}")
+        }
     def found
 
    if (p.isDirectory()) {
@@ -42,7 +51,11 @@ def resolveFiles(String sample_id, String label, path_str) {
         }
 
     if (!found) {
-        error("Sample '${sample_id}': no bam/fastq/fasta files found in ${path_str} (${label})")
+        error("Sample '${sample_id}': no ${exts.join('/')} files found in ${path_str} (${label})")
+        }
+    // minimap2 treats two query files as paired-end, so fastq input must be one file per sample until a merge step exists
+    if (params.input_type == 'fastq' && found.size() > 1) {
+        error("Sample '${sample_id}': ${found.size()} fastq files found in ${path_str} (${label}). Merge them into a single fastq.gz per sample")
         }
     return found
     }
@@ -136,11 +149,12 @@ workflow PIPELINE_INITIALISATION {
     //
 
 
+    def samplesheet_dir = file(input).parent
     ch_samplesheet = channel
         .fromList(samplesheetToList(input, "${projectDir}/assets/schema_input.json"))
         .map { meta, tumour, germline ->
-            def tumour_files   = resolveFiles(meta.id, 'tumour', tumour)
-            def germline_files = resolveFiles(meta.id, 'germline', germline)
+            def tumour_files   = resolveFiles(meta.id, 'tumour', tumour, samplesheet_dir)
+            def germline_files = resolveFiles(meta.id, 'germline', germline, samplesheet_dir)
 
             [ meta, tumour_files, germline_files ]
         }

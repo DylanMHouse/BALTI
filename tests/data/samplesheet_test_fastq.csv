@@ -1,0 +1,2 @@
+sample,tumour,germline
+test,fastq/test_tumour.fastq.gz,fastq/test_germline.fastq.gz

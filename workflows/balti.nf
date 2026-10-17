@@ -41,7 +41,6 @@ workflow BALTI {
     def ch_versions = channel.empty()
     def ch_multiqc_files = channel.empty()
     def ch_multiqc_report = channel.empty()
-    def ch_minimap2_index = channel.empty()
     def ch_aligned = channel.empty()
     def ch_aligned_index = channel.empty()
 
@@ -75,35 +74,105 @@ workflow BALTI {
         )
 
 
-    // fasta definitions
-    def fasta_path = params.genome
-        ? params.genomes.containsKey(params.genome)
-	    ? params.genomes[params.genome].fasta
-	    : error("Genome '${params.genome}' not found in iGenomes config. Check --genome or set --igenomes_ignore false")
-	    : params.fasta_file
+    /*
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    			REFERENCES
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    */
+
+    // --fasta takes priority over --genome if provided of course.
+    def fasta_path = params.fasta
+        ?: params.genome
+            ? params.genomes.containsKey(params.genome)
+                ? params.genomes[params.genome].fasta
+                : error("Genome '${params.genome}' not found in iGenomes config. Check --genome or set --igenomes_ignore false")
+            : error("Provide a reference with --fasta or --genome")
 
     def ch_fasta = channel.fromPath(fasta_path, checkIfExists: true)
         .map { fasta -> tuple([id: "ref"], fasta) }
-	.first()
+        .first()
 
-    if (params.intervals) {
-        def ch_intervals = channel.fromPath(params.intervals_list, checkIfExists: true)
-	    .map { bed -> tuple([id: "bed"], bed)}
-    }
-    else {
-        def ch_intervals = [[:], []]
-	}
+    // Indexing the reference to .fai is necessary here as it is mandatory for some steps.
+    SAMTOOLS_FAIDX ( ch_fasta.map{ meta, fasta -> [meta, fasta, [] ] }, false)
+    def ch_fasta_fai = ch_fasta
+        .join(SAMTOOLS_FAIDX.out.fai, by: 0)
+        .first()
 
-    //
-    // MODULE: Run FastQC
-    //
+    // Optional inputs: an empty list stands in for a missing file.
+    def ch_intervals = params.intervals
+        ? channel.fromPath(params.intervals, checkIfExists: true).first()
+        : channel.value([])
+
+    // minimap2 accepts a prebuilt .mmi in place of the fasta; parabricks always needs the fasta
+    def ch_minimap2_ref = params.minimap2_index && params.alignment_software == 'minimap_nogpu'
+        ? channel.fromPath(params.minimap2_index, checkIfExists: true).map { mmi -> tuple([id: "ref"], mmi) }.first()
+        : ch_fasta
+
+    /*
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    			READ QC
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    */
 
     if (params.qc && params.input_type == 'fastq') {
+        FASTQC(ch_samplesheet)
+        ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.map{ _meta, file -> file })
+    }
 
-    FASTQC(ch_samplesheet)
+    /*
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    			INDEXING,  ALIGNMENT & QC CHECKS
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    */
 
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.map{ _meta, file -> file })
+    if (params.minimap2) {
 
+        if (params.input_type == 'fastq') {
+
+            ALIGNMENT(ch_samplesheet, ch_minimap2_ref)
+
+        } else if (params.input_type == 'bam') {
+            PREPAREBAM(ch_samplesheet)
+            ch_multiqc_files = ch_multiqc_files.mix(PREPAREBAM.out.zip.map{ _meta, file -> file })
+            ch_multiqc_files = ch_multiqc_files.mix(PREPAREBAM.out.txt.map{ _meta, file -> file })
+
+            ALIGNMENT(PREPAREBAM.out.fastq, ch_minimap2_ref)
+        }
+
+        // Keep the full meta (id, patient, type) so tumour and germline can be told apart downstream. I've had this issue in previous commits :(
+        ch_aligned       = ALIGNMENT.out.bam
+        ch_aligned_index = ALIGNMENT.out.bai
+
+        def ch_input_bam = ch_aligned.join(ch_aligned_index, by: 0)
+
+        // Generate some statistics of aligned reads
+        BAM_STATS_SAMTOOLS(
+            ch_input_bam,
+            ch_fasta_fai
+        )
+        ch_multiqc_files = ch_multiqc_files
+            .mix(BAM_STATS_SAMTOOLS.out.stats.map{ _meta, file -> file })
+            .mix(BAM_STATS_SAMTOOLS.out.flagstat.map{ _meta, file -> file })
+            .mix(BAM_STATS_SAMTOOLS.out.idxstats.map{ _meta, file -> file })
+
+        /*
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                COVERAGE
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        */
+
+        if (params.coverage) {
+            MOSDEPTH(
+                // wrap the bed so an empty [] still fills the bed slot: [ meta, bam, bai, bed ]
+                ch_input_bam.combine(ch_intervals.map { bed -> [bed] }),
+                ch_fasta,
+                []
+            )
+            ch_multiqc_files = ch_multiqc_files
+                .mix(MOSDEPTH.out.global_txt.map{ _meta, file -> file })
+                .mix(MOSDEPTH.out.summary_txt.map{ _meta, file -> file })
+        }
+    }
 
     //
     // MODULE: MultiQC
@@ -132,86 +201,7 @@ workflow BALTI {
             ]
         }
     )
-
-
-
-    }
-
-    /*
-    ######################################################################
-    			INDEXING,  ALIGNMENT & QC CHECKS
-    ######################################################################
-    */
-
-
-    if (params.minimap2) {
-        SAMTOOLS_FAIDX ( ch_fasta.map{ meta, fasta -> [meta, fasta, [] ] }, false)
-        ch_fai = SAMTOOLS_FAIDX.out.fai
-
-        ch_fasta_fai = ch_fasta
-            .join(ch_fai, by: 0)
-	    .map { meta, fasta, idx ->
-	        tuple(meta, fasta, idx)
-	    }
-
-        if (params.input_type == 'fastq') {
-
-            ALIGNMENT(ch_samplesheet, ch_fasta)
-
-        } else if (params.input_type == 'bam') {
-            PREPAREBAM(
-                ch_samplesheet,
-                ch_fasta_fai
-            )
-            ALIGNMENT(PREPAREBAM.out.fastq, ch_fasta)
-        }
-
-    ch_aligned = ALIGNMENT.out.bam.map { meta, bam ->
-        def meta_data = [id: meta.id]
-        [meta_data, bam] }
-
-    ch_aligned_index = ALIGNMENT.out.bai.map { meta, bai ->
-        def meta_data = [id: meta.id]
-        [meta_data, bai]
-        }
-
-
-    ch_input_bam_bed = ch_aligned
-        .join(ch_aligned_index, by: 0)
-        .map { meta, bam, bai ->
-            tuple(meta, bam, bai, [])
-        }
-    ch_input_bam = ch_aligned
-        .join(ch_aligned_index, by: 0)
-        .map { meta, bam, bai ->
-            tuple(meta, bam, bai)
-        }
-
-    // Generate some statistics of aligned reads
-    BAM_STATS_SAMTOOLS(
-        ch_input_bam,
-        ch_fasta_fai
-    )
-    }
-
-/*
-#################################################################
-        COVERAGE
-#################################################################
-`*/
-
-    MOSDEPTH(
-        ch_input_bam_bed,
-        ch_fasta,
-        []
-    )
-
-
-/*
-##################################
-SNV GERMLINE & SOMATIC CALLS
-##################################
-*/
+    ch_multiqc_report = MULTIQC.out.report.map { _meta, report -> report }
 
     emit:
     multiqc_report = ch_multiqc_report

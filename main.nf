@@ -50,26 +50,23 @@ workflow NFCORE_BALTI {
     //
     // Some defaults among all pipelines
 
-    ch_samples = samplesheet.flatMap { meta, tumour, normal ->
-    [ [ meta + [patient: meta.id, id: "${meta.id}_T", type: 'tumour'], tumour ],
-      [ meta + [patient: meta.id, id: "${meta.id}_N", type: 'normal'], normal ] ]
-}
+    // Split each samplesheet row into a tumour and a germline item so every per-sample process runs for both
+    ch_samples = samplesheet.flatMap { meta, tumour, germline ->
+        [
+            [ meta + [patient: meta.id, id: "${meta.id}_T", type: 'tumour'  ], tumour   ],
+            [ meta + [patient: meta.id, id: "${meta.id}_N", type: 'germline'], germline ],
+        ]
+    }
 
-
-
-    def valid_input_types = ['fastq', 'ubam', 'bam' ]
+    def valid_input_types = ['fastq', 'bam'] // bam = unaligned (Dorado) BAM. ALigned BAM files are not currently supported unfortunately.
     if (!(params.input_type in valid_input_types)) {
         error("Invalid --input_type '${params.input_type}'. Valid options: ${valid_input_types.join(', ')}")
     }
 
-    def valid_aligners = [
-        'fastq': ['minimap_nogpu', 'minimap_gpu'],
-	'ubam': ['minimap_nogpu', 'minimap_gpu'],
-    ]
-
-    if (valid_aligners.containsKey(params.input_type) && !(params.alignment_software in valid_aligners[params.input_type])) {
-        error("--input_type ${params.input_type} requires alignment_software to be one of ${valid_aligners[params.input_type].join(', ')} (got '${params.alignment_software}')")
-	}
+    def valid_aligners = ['minimap_nogpu', 'minimap_gpu']
+    if (!(params.alignment_software in valid_aligners)) {
+        error("--alignment_software must be one of ${valid_aligners.join(', ')} (got '${params.alignment_software}')")
+    }
 
     //
     // WORKFLOW: Run pipeline

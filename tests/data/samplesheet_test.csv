@@ -1,0 +1,2 @@
+sample,tumour,germline
+test,bam/test_tumour.bam,bam/test_germline.bam

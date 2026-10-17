@@ -4,6 +4,18 @@ nextflow_pipeline {
     script "../main.nf"
     tag "pipeline"
 
+    // Each per-sample process must run exactly twice: once for the tumour (test_T) and once for the germline (test_N)
+    def assertPerSample = { trace, processes ->
+        processes.each { p ->
+            def tasks = trace.tasks().findAll { task -> task.name.tokenize(':')[-1].startsWith("${p} (") }
+            assert tasks.size() == 2 : "${p} ran ${tasks.size()} times, expected 2"
+            assert tasks.any { task -> task.name.contains('(test_T)') } : "${p} did not run for the tumour"
+            assert tasks.any { task -> task.name.contains('(test_N)') } : "${p} did not run for the germline"
+        }
+    }
+
+    def perSample = ['MINIMAP2_ALIGN', 'SAMTOOLS_STATS', 'SAMTOOLS_FLAGSTAT', 'SAMTOOLS_IDXSTATS', 'MOSDEPTH', 'FASTQC']
+
     test("-profile test") {
 
         when {
@@ -18,6 +30,9 @@ nextflow_pipeline {
             // stable_content: All files in ${params.outdir}/ with stable content
             def stable_content = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
             assert workflow.success
+            assertPerSample(workflow.trace, perSample + ['SAMTOOLS_CAT', 'SAMTOOLS_FASTQ', 'NANOPLOT'])
+            assert path("$outputDir/Tumour").exists()
+            assert path("$outputDir/Germline").exists()
             assertAll(
                 { assert snapshot(
                     // pipeline versions.yml file for multiqc from which Nextflow version is removed because we test pipelines on multiple Nextflow versions
@@ -25,6 +40,33 @@ nextflow_pipeline {
                     // All stable path name, with a relative path
                     stable_path,
                     // All files with stable contents
+                    stable_content
+                ).match() }
+            )
+        }
+    }
+
+    test("-profile test_fastq") {
+
+        config "../conf/test_fastq.config"
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+        }
+
+        then {
+            def stable_path = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
+            def stable_content = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
+            assert workflow.success
+            assertPerSample(workflow.trace, perSample)
+            assert path("$outputDir/Tumour").exists()
+            assert path("$outputDir/Germline").exists()
+            assertAll(
+                { assert snapshot(
+                    removeNextflowVersion("$outputDir/pipeline_info/nf_core_balti_software_mqc_versions.yml"),
+                    stable_path,
                     stable_content
                 ).match() }
             )
