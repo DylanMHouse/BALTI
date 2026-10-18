@@ -5,32 +5,37 @@ include { BCFTOOLS_VIEW as BCFTOOLS_VIEW_CLAIR3 } from '../../../modules/nf-core
 workflow CALLSNV {
 
     take:
-    ch_input // channel: [ val(meta), [ bam ], [bai], [ model ], [ user model ] [ platform ]]
-    ch_ref
-    ch_ref_index
+    ch_input // channel
+    ch_fasta
+    ch_fai
 
     main:
 
-    ch_clair3_input = ch_input.map { meta, bam, bai ->
-        tuple(meta, bam, bai, params.clair3_model, [], 'ont')
-        }
-
     CLAIR3(
-        ch_clair3_input,
-        ch_ref,
-        ch_ref_index
+        ch_input,
+        ch_fasta,
+        ch_fai
     )
     ch_vcf = CLAIR3.out.vcf
     ch_tbi = CLAIR3.out.tbi
 
-    def regions = params.regions ?: []
-    def targets = params.targets ?: []
-    def sample_names = params.sample_names ?: []
 
-    ch_clair3_output = ch_vcf.join(ch_tbi, by: 0)
-                            .map { meta, vcf, index ->
-                                tuple(meta, vcf, index)
-                            }
+
+    def regions = params.regions
+        ? channel.fromPath(params.regions, checkIfExists: true).first()
+        : channel.value([])
+
+
+    def targets = params.targets
+        ? channel.fromPath(params.targets, checkIfExists: true).first()
+        : channel.value([])
+
+    def sample_names = params.sample_names
+        ? channel.fromPath(params.sample_names, checkIfExists: true).first()
+        : channel.value([])
+
+
+    ch_clair3_output = ch_vcf.combine(ch_tbi)
 
     BCFTOOLS_VIEW_CLAIR3(
         ch_clair3_output,

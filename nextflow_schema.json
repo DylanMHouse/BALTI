@@ -298,14 +298,12 @@
         "clair3_model": {
             "type": "string"
         },
-        "somatic_pipeline": {
-            "type": "boolean"
+        "clair3": {
+            "type": "boolean",
+            "default": true
         },
-        "germline_pipeline": {
-            "type": "boolean"
-        },
-        "balti_pipeline": {
-            "type": "boolean"
+        "clair3_home_model": {
+            "type": "string"
         }
     }
 }

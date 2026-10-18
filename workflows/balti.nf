@@ -11,8 +11,9 @@ include { MOSDEPTH                    } from '../modules/nf-core/mosdepth/main'
 include { BAM_STATS_SAMTOOLS          } from '../subworkflows/nf-core/bam_stats_samtools'
 
 include { SAMTOOLS_FAIDX              } from '../modules/nf-core/samtools/faidx/main'
-include { ALIGNMENT		      } from '../subworkflows/local/alignment'
+include { ALIGNMENT		              } from '../subworkflows/local/alignment'
 include { PREPAREBAM                  } from '../subworkflows/local/preparebam'
+include { CALLSNV                     } from '../subworkflows/local/callsnv'
 
 
 include { paramsSummaryMultiqc        } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -76,7 +77,7 @@ workflow BALTI {
 
     /*
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    			REFERENCES
+    			REFERENCES & OPTIONAL INPUT CONFIGURATION
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     */
 
@@ -107,6 +108,25 @@ workflow BALTI {
     def ch_minimap2_ref = params.minimap2_index && params.alignment_software == 'minimap_nogpu'
         ? channel.fromPath(params.minimap2_index, checkIfExists: true).map { mmi -> tuple([id: "ref"], mmi) }.first()
         : ch_fasta
+
+
+    // Clair3 model: a packaged model name (in the container) OR a user model directory, not both
+    if (params.clair3_model && params.clair3_home_model) {
+        error("Use either --clair3_model (packaged model name) or --clair3_home_model (model directory), not both")
+    }
+    if (!params.clair3_model && !params.clair3_home_model) {
+        error("Clair3 needs a model: set --clair3_model or --clair3_home_model")
+    }
+
+    // channel: [ packaged_model, user_model, platform ]
+    def ch_clair3_model = params.clair3_home_model
+        ? channel.fromPath(params.clair3_home_model, type: 'dir', checkIfExists: true)
+            .map { model_dir -> [ [], model_dir, 'ont' ] }
+            .first()
+        : channel.value([ params.clair3_model, [], 'ont' ])
+
+
+
 
     /*
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -143,7 +163,7 @@ workflow BALTI {
         ch_aligned       = ALIGNMENT.out.bam
         ch_aligned_index = ALIGNMENT.out.bai
 
-        def ch_input_bam = ch_aligned.join(ch_aligned_index, by: 0)
+        ch_input_bam = ch_aligned.join(ch_aligned_index, by: 0)
 
         // Generate some statistics of aligned reads
         BAM_STATS_SAMTOOLS(
@@ -174,9 +194,26 @@ workflow BALTI {
         }
     }
 
-    //
-    // MODULE: MultiQC
-    //
+
+    /*
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        SNV calls
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    */
+
+    CALLSNV(
+        ch_input_bam.combine(ch_clair3_model),
+        ch_fasta,
+        SAMTOOLS_FAIDX.out.fai.first()
+        )
+
+
+
+    /*
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        MULTIQC
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    */
     ch_multiqc_files = ch_multiqc_files.mix(ch_collated_versions)
     def ch_summary_params = paramsSummaryMap(workflow, parameters_schema: "nextflow_schema.json")
     def ch_workflow_summary = channel.value(paramsSummaryMultiqc(ch_summary_params))
