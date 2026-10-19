@@ -14,12 +14,12 @@ workflow PHASEHAPLOTAG {
     main:
 
     ch_bam = ch_input.map { meta, bam, bai, _snvs, _svs -> [ meta, bam, bai ] }
-    ch_fast_fai = ch_fasta.combine(ch_fai)
+    ch_fasta_fai = ch_fasta.join(ch_fai, by: 0) // [ meta, fasta, fai ]
 
     // Modifications come from the MM/ML tags carried through from the Dorado BAM
     LONGPHASE_MODCALL(
         ch_bam,
-        ch_fast_fai
+        ch_fasta_fai
     )
 
     LONGPHASE_PHASE(

@@ -1,2 +1,2 @@
 sample,tumour,germline
-test,fastq/test_tumour.fastq.gz,fastq/test_germline.fastq.gz
+test,fastq/colo829.PAU61426.sup.chr22.subset.0.05.fastq.gz,fastq/colo829bl.PAU59807.sup.chr22.subset.0.05.fastq.gz
