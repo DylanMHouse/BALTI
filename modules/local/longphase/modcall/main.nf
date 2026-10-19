@@ -15,7 +15,7 @@ process LONGPHASE_MODCALL {
 
     output:
     tuple val(meta), path("${prefix}.vcf.gz"), emit: vcf
-    tuple val("${task.process}"), val('longphase'), eval("longphase --version"), topic: versions, emit: versions_longphase
+    tuple val("${task.process}"), val('longphase'), eval("longphase --version | head -n 1 | sed 's/Version: //'"), topic: versions, emit: versions_longphase
 
     when:
     task.ext.when == null || task.ext.when
