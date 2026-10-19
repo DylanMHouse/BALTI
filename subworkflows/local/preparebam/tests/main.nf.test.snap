@@ -1,0 +1,153 @@
+{
+    "homo_sapiens - ont - bam - tumour, germline - qc": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test_N",
+                        "patient": "test",
+                        "type": "germline"
+                    },
+                    "test_N_other.fastq.gz",
+                    153
+                ],
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T_other.fastq.gz",
+                    170
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test_N",
+                        "patient": "test",
+                        "type": "germline"
+                    },
+                    "NanoStats.txt"
+                ],
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "NanoStats.txt"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test_N",
+                        "patient": "test",
+                        "type": "germline"
+                    },
+                    "test_N_fastqc.zip"
+                ],
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T_fastqc.zip"
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-19T14:38:09.07709817",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.7"
+        }
+    },
+    "homo_sapiens - ont - bam - tumour, germline - qc - stub": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test_N",
+                        "patient": "test",
+                        "type": "germline"
+                    },
+                    "test_N_other.fastq.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                ],
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T_other.fastq.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                ]
+            ],
+            [
+                
+            ],
+            [
+                [
+                    {
+                        "id": "test_N",
+                        "patient": "test",
+                        "type": "germline"
+                    },
+                    "NanoStats.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "NanoStats.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test_N",
+                        "patient": "test",
+                        "type": "germline"
+                    },
+                    "test_N.zip:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T.zip:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-19T14:38:21.308410055",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.7"
+        }
+    },
+    "homo_sapiens - ont - bam - multiple bams per sample - no qc": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T_other.fastq.gz",
+                    323
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-19T14:38:13.690609268",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.7"
+        }
+    }
+}

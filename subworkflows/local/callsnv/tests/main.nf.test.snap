@@ -1,0 +1,64 @@
+{
+    "homo_sapiens - ont - bam - tumour, germline - packaged model": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test_N",
+                        "patient": "test",
+                        "type": "germline"
+                    },
+                    "test_N.vcf",
+                    "9edbe575726162955311ba77940b96ed"
+                ],
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T.vcf",
+                    "70c1423f9b1ea816d712748130431b10"
+                ]
+            ],
+            [
+                
+            ]
+        ],
+        "timestamp": "2026-10-19T14:17:10.941457039",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.7"
+        }
+    },
+    "homo_sapiens - ont - bam - tumour, germline - packaged model - stub": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test_N",
+                        "patient": "test",
+                        "type": "germline"
+                    },
+                    "test_N.vcf:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T.vcf:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                
+            ]
+        ],
+        "timestamp": "2026-10-19T14:17:17.9110553",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.7"
+        }
+    }
+}

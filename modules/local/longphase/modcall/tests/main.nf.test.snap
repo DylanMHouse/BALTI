@@ -7,7 +7,7 @@
                         {
                             "id": "test"
                         },
-                        "test.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                        "test_modcall.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
                     ]
                 ],
                 "versions_longphase": [
@@ -19,7 +19,7 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-18T20:34:55.285812705",
+        "timestamp": "2026-10-19T14:30:45.803423026",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.7"
@@ -33,7 +33,7 @@
                         {
                             "id": "test"
                         },
-                        "test.vcf.gz:md5,30fb59acf69d280c5025ccad3aad156a"
+                        "test_modcall.vcf.gz:md5,e04cdb1ce1e07740c57c1984ff17336c"
                     ]
                 ],
                 "versions_longphase": [
@@ -45,7 +45,7 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-18T20:34:44.037647173",
+        "timestamp": "2026-10-19T14:30:33.46617293",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.7"
@@ -59,7 +59,7 @@
                         {
                             "id": "test"
                         },
-                        "test.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                        "test_modcall.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
                     ]
                 ],
                 "versions_longphase": [
@@ -71,7 +71,7 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-18T20:34:51.436511926",
+        "timestamp": "2026-10-19T14:30:41.616760786",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.7"
@@ -85,7 +85,7 @@
                         {
                             "id": "test"
                         },
-                        "test.vcf.gz:md5,dfadecd7ed60461ec3eaa42cfbafb8f7"
+                        "test_modcall.vcf.gz:md5,8f9d26bf26dab1dd3b0e1305cf298dda"
                     ]
                 ],
                 "versions_longphase": [
@@ -97,7 +97,7 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-18T20:34:47.595910246",
+        "timestamp": "2026-10-19T14:30:37.347488859",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.7"

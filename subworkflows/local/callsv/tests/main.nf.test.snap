@@ -1,0 +1,202 @@
+{
+    "homo_sapiens - ont - bam - tumour, germline": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test_N",
+                        "patient": "test",
+                        "type": "germline"
+                    },
+                    "test_N.vcf.gz",
+                    "ddf709bfecb12d2bc160c94d0b4c51e6"
+                ],
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T.vcf.gz",
+                    "c88903047bd280161f21c385525160f6"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test_N",
+                        "patient": "test",
+                        "type": "germline"
+                    },
+                    "test_N.vcf.gz.tbi"
+                ],
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T.vcf.gz.tbi"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test_N",
+                        "patient": "test",
+                        "type": "germline"
+                    },
+                    "test_N_cnv.vcf:md5,16664fa086377c2f94492ecc254211c6"
+                ],
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T_cnv.vcf:md5,4470a798565d1a1eba5b9a069f555df2"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test_N",
+                        "patient": "test",
+                        "type": "germline"
+                    },
+                    "test_N_cnv.bed:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T_cnv.bed:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test_N",
+                        "patient": "test",
+                        "type": "germline"
+                    },
+                    "test_N_predicted_karyotype.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T_predicted_karyotype.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-19T14:19:09.670793879",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.7"
+        }
+    },
+    "homo_sapiens - ont - bam - tumour, germline - stub": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test_N",
+                        "patient": "test",
+                        "type": "germline"
+                    },
+                    "test_N.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                ],
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test_N",
+                        "patient": "test",
+                        "type": "germline"
+                    },
+                    "test_N.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test_N",
+                        "patient": "test",
+                        "type": "germline"
+                    },
+                    "test_N_cnv.vcf:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T_cnv.vcf:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test_N",
+                        "patient": "test",
+                        "type": "germline"
+                    },
+                    "test_N_cnv.bed:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T_cnv.bed:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test_N",
+                        "patient": "test",
+                        "type": "germline"
+                    },
+                    "test_N_predicted_karyotype.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T_predicted_karyotype.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-19T14:19:23.229299358",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.7"
+        }
+    }
+}

@@ -1,0 +1,209 @@
+{
+    "homo_sapiens - ont - bam, snvs, no svs": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T.phased.vcf.gz",
+                    "51f56a817b1a01754fe570984793d434"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T.phased_mod.vcf.gz",
+                    "169a2bf3d1566dfd5e33eaa8db3bd97b"
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-19T14:20:45.082336157",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.7"
+        }
+    },
+    "homo_sapiens - ont - bam, snvs, svs": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T.haplotagged.bam",
+                    "ed32e1f942b885a16c2f2f733df24084"
+                ]
+            ],
+            135,
+            [
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T.phased.vcf.gz",
+                    "51f56a817b1a01754fe570984793d434"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T.phased_SV.vcf.gz",
+                    "c88903047bd280161f21c385525160f6"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T.phased_mod.vcf.gz",
+                    "169a2bf3d1566dfd5e33eaa8db3bd97b"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T_modcall.vcf.gz",
+                    "93394f6b0fd993d016558e543bcdeaa7"
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-19T14:20:04.492132224",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.7"
+        }
+    },
+    "homo_sapiens - ont - bam, snvs, svs - stub": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test_T",
+                            "patient": "test",
+                            "type": "tumour"
+                        },
+                        "test_T.haplotagged.bam:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "test_T",
+                            "patient": "test",
+                            "type": "tumour"
+                        },
+                        "test_T.phased.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                    ]
+                ],
+                "2": [
+                    [
+                        {
+                            "id": "test_T",
+                            "patient": "test",
+                            "type": "tumour"
+                        },
+                        "test_T.phased_SV.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                    ]
+                ],
+                "3": [
+                    [
+                        {
+                            "id": "test_T",
+                            "patient": "test",
+                            "type": "tumour"
+                        },
+                        "test_T.phased_mod.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                    ]
+                ],
+                "4": [
+                    [
+                        {
+                            "id": "test_T",
+                            "patient": "test",
+                            "type": "tumour"
+                        },
+                        "test_T_modcall.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                    ]
+                ],
+                "bam": [
+                    [
+                        {
+                            "id": "test_T",
+                            "patient": "test",
+                            "type": "tumour"
+                        },
+                        "test_T.haplotagged.bam:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "mod_vcf": [
+                    [
+                        {
+                            "id": "test_T",
+                            "patient": "test",
+                            "type": "tumour"
+                        },
+                        "test_T.phased_mod.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                    ]
+                ],
+                "modcall_vcf": [
+                    [
+                        {
+                            "id": "test_T",
+                            "patient": "test",
+                            "type": "tumour"
+                        },
+                        "test_T_modcall.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                    ]
+                ],
+                "snv_vcf": [
+                    [
+                        {
+                            "id": "test_T",
+                            "patient": "test",
+                            "type": "tumour"
+                        },
+                        "test_T.phased.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                    ]
+                ],
+                "sv_vcf": [
+                    [
+                        {
+                            "id": "test_T",
+                            "patient": "test",
+                            "type": "tumour"
+                        },
+                        "test_T.phased_SV.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-19T14:20:54.068698269",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.7"
+        }
+    }
+}

@@ -1,0 +1,104 @@
+{
+    "homo_sapiens - ont - fastq - minimap_nogpu - stub": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test_T",
+                            "patient": "test",
+                            "type": "tumour"
+                        },
+                        "test_T.bam:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "test_T",
+                            "patient": "test",
+                            "type": "tumour"
+                        },
+                        "test_T.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "2": [
+                    [
+                        "ALIGNMENT:MINIMAP2_ALIGN",
+                        "minimap2",
+                        "2.30-r1287"
+                    ]
+                ],
+                "bai": [
+                    [
+                        {
+                            "id": "test_T",
+                            "patient": "test",
+                            "type": "tumour"
+                        },
+                        "test_T.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "bam": [
+                    [
+                        {
+                            "id": "test_T",
+                            "patient": "test",
+                            "type": "tumour"
+                        },
+                        "test_T.bam:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "versions": [
+                    [
+                        "ALIGNMENT:MINIMAP2_ALIGN",
+                        "minimap2",
+                        "2.30-r1287"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-19T14:38:47.854844178",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.7"
+        }
+    },
+    "homo_sapiens - ont - fastq - minimap_nogpu": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T.bam",
+                    "48d58b7f53b3dc635af193b5a564fc93"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "test_T.bam.bai"
+                ]
+            ],
+            [
+                [
+                    "ALIGNMENT:MINIMAP2_ALIGN",
+                    "minimap2",
+                    "2.30-r1287"
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-19T14:38:42.18529201",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.7"
+        }
+    }
+}

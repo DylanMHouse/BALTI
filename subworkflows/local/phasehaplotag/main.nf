@@ -18,7 +18,7 @@ workflow PHASEHAPLOTAG {
 
     // Modifications come from the MM/ML tags carried through from the Dorado BAM
     LONGPHASE_MODCALL(
-        ch_bam,
+        ch_input.map { meta, bam, bai, snvs, _svs -> [ meta, bam, bai, snvs ] },
         ch_fasta_fai
     )
 
