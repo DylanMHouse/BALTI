@@ -14,6 +14,8 @@ include { SAMTOOLS_FAIDX              } from '../modules/nf-core/samtools/faidx/
 include { ALIGNMENT		              } from '../subworkflows/local/alignment'
 include { PREPAREBAM                  } from '../subworkflows/local/preparebam'
 include { CALLSNV                     } from '../subworkflows/local/callsnv'
+include { CALLSV                      } from '../subworkflows/local/callsv'
+include { PHASEHAPLOTAG               } from '../subworkflows/local/phasehaplotag'
 
 
 include { paramsSummaryMultiqc        } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -207,8 +209,37 @@ workflow BALTI {
         SAMTOOLS_FAIDX.out.fai.first()
         )
 
+    /*
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        SV & CNV CALLS
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    */
 
+    //Spectre uses the filtered Clair3 SNVs of the same sample to estimate diploid coverage
+    CALLSV(
+        ch_input_bam,
+        CALLSNV.out.vcf,
+        ch_fasta
+        )
 
+    /*
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        PHASING & HAPLOTAGGING
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    */
+
+    if (params.phasing) {
+    // Co-phase each samples'SNVS, Sniffles SVs and 5mC calls.
+        def ch_phase_input = ch_input_bam
+            .join(CALLSNV.out.vcf, by: 0)
+            .join(CALLSV.out.sv_vcf, by: 0)
+
+        PHASEHAPLOTAG(
+            ch_phase_input,
+            ch_fasta,
+            SAMTOOLS_FAIDX.out.fai.first()
+            )
+    }
     /*
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         MULTIQC

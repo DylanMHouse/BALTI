@@ -304,6 +304,10 @@
         },
         "clair3_home_model": {
             "type": "string"
+        },
+        "phasing": {
+            "type": "boolean",
+            "default": true
         }
     }
 }

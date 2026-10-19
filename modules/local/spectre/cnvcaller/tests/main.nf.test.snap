@@ -1,0 +1,180 @@
+{
+    "homo_sapiens - ont - mosdepth, clair3 vcf - fasta - stub": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_cnv.vcf:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_cnv.bed:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "2": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.spc.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                    ]
+                ],
+                "3": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_predicted_karyotype.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "4": [
+                    [
+                        "SPECTRE_CNVCALLER",
+                        "spectre",
+                        "0.3.2"
+                    ]
+                ],
+                "bed": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_cnv.bed:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "karyotype": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_predicted_karyotype.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "spc": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.spc.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                    ]
+                ],
+                "vcf": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_cnv.vcf:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "versions_spectre": [
+                    [
+                        "SPECTRE_CNVCALLER",
+                        "spectre",
+                        "0.3.2"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-18T22:44:38.223031951",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
+    },
+    "homo_sapiens - ont - mosdepth, clair3 vcf - fasta": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_cnv.vcf:md5,b8a43c2fffee594092c3aff2bb32ad99"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_cnv.bed:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "2": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.spc.gz:md5,0d59d7b5c8764813f8cb3da9ab432b26"
+                    ]
+                ],
+                "3": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_predicted_karyotype.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "4": [
+                    [
+                        "SPECTRE_CNVCALLER",
+                        "spectre",
+                        "0.3.2"
+                    ]
+                ],
+                "bed": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_cnv.bed:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "karyotype": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_predicted_karyotype.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "spc": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.spc.gz:md5,0d59d7b5c8764813f8cb3da9ab432b26"
+                    ]
+                ],
+                "vcf": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_cnv.vcf:md5,b8a43c2fffee594092c3aff2bb32ad99"
+                    ]
+                ],
+                "versions_spectre": [
+                    [
+                        "SPECTRE_CNVCALLER",
+                        "spectre",
+                        "0.3.2"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-18T22:44:27.347292603",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
+    }
+}

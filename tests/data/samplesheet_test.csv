@@ -1,2 +1,2 @@
 sample,tumour,germline
-test,bam/test_tumour.bam,bam/test_germline.bam
+test,https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/homo_sapiens/nanopore/bam/savana/colo829.PAU61426.sup.chr22.subset.0.05.bam,https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/homo_sapiens/nanopore/bam/savana/colo829bl.PAU59807.sup.chr22.subset.0.05.bam

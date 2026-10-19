@@ -1,48 +1,52 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
 name: "preparebam"
-## TODO nf-core: Add a description of the subworkflow and list keywords
-description: Sort SAM/BAM/CRAM file
+description: Concatenate the unaligned Dorado BAMs of a sample, and convert them to fastq while keeping the MM/ML modification tags), and optionally run FastQC and NanoPlot.
 keywords:
-  - sort
+  - fastq
   - bam
-  - sam
-  - cram
-## TODO nf-core: Add a list of the modules and/or subworkflows used in the subworkflow
+  - qc
+  - nanopore
 components:
-  - samtools/sort
-  - samtools/index
-## TODO nf-core: List all of the channels used as input with a description and their structure
+  - samtools/cat
+  - samtools/fastq
+  - fastqc
+  - nanoplot
 input:
   - ch_bam:
       type: file
       description: |
-        The input channel containing the BAM/CRAM/SAM files
-        Structure: [ val(meta), path(bam) ]
-      pattern: "*.{bam/cram/sam}"
-## TODO nf-core: List all of the channels used as output with a descriptions and their structure
-output:
-  - bam:
-      type: file
-      description: |
-        Channel containing BAM files
-        Structure: [ val(meta), path(bam) ]
+        One or more unaligned BAMs per sample
+        Structure: [ val(meta), [ path(bam) ] ]
       pattern: "*.bam"
-  - bai:
+output:
+  - fastq:
       type: file
       description: |
-        Channel containing indexed BAM (BAI) files
-        Structure: [ val(meta), path(bai) ]
-      pattern: "*.bai"
-  - csi:
+        Compressed reads in fastq format
+        Structure: [ val(meta), path(fastq.gz) ]
+      pattern: "*_other.fastq.gz"
+  - png:
       type: file
       description: |
-        Channel containing CSI files
-        Structure: [ val(meta), path(csi) ]
-      pattern: "*.csi"
+        NanoPlot plots (when --qc is set)
+        Structure: [ val(meta), path(png) ]
+      pattern: "*.png"
+  - txt:
+      type: file
+      description: |
+        NanoPlot statistics (when --qc is set)
+        Structure: [ val(meta), path(txt) ]
+      pattern: "*.txt"
+  - zip:
+      type: file
+      description: |
+        FastQC reports (when --qc is set)
+        Structure: [ val(meta), path(zip) ]
+      pattern: "*.zip"
   - versions:
       type: file
       description: |
-        File containing software versions
+        Empty; versions are collected through the versions topic
         Structure: [ path(versions.yml) ]
       pattern: "versions.yml"
 authors:

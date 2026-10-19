@@ -1,0 +1,136 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "spectre_cnvcaller"
+description: Call large copy number variants (CNVs) from long-read binned
+  coverage (mosdepth) and small variant calls with Spectre.
+keywords:
+  - cnv
+  - copy number
+  - structural variants
+  - long-read
+  - nanopore
+  - genomics
+tools:
+  - "spectre":
+      description: "Spectre is a long-read copy number variation (CNV) caller designed
+        to detect large CNVs (>100kb). ont-spectre adds diploid coverage estimation from
+        heterozygous SNVs and sex chromosome karyotype prediction."
+      homepage: "https://github.com/epi2me-labs/ont-spectre"
+      documentation: "https://github.com/epi2me-labs/ont-spectre/blob/master/README.md"
+      tool_dev_url: "https://github.com/epi2me-labs/ont-spectre"
+      doi: ""
+      licence: ["Oxford Nanopore Technologies Public License v1.0"]
+      identifier: ""
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - summary_txt:
+        type: file
+        description: mosdepth summary file
+        pattern: "*.mosdepth.summary.txt"
+        ontologies: []
+    - regions_bed:
+        type: file
+        description: mosdepth binned coverage (run with `--by <bin size>`)
+        pattern: "*.regions.bed.gz"
+        ontologies:
+          - edam: "http://edamontology.org/format_3003" # BED
+    - regions_csi:
+        type: file
+        description: Index of the mosdepth binned coverage
+        pattern: "*.regions.bed.gz.csi"
+        ontologies: []
+    - snv:
+        type: file
+        description: SNV calls for the same sample, used to estimate diploid coverage
+        pattern: "*.{vcf,vcf.gz}"
+        ontologies:
+          - edam: "http://edamontology.org/format_3016" # VCF
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing reference information
+          e.g. `[ id:'hg38' ]`
+    - fasta:
+        type: file
+        description: Reference fasta file used for alignment (for N removal)
+        pattern: "*.{fa,fasta,fa.gz,fasta.gz}"
+        ontologies:
+          - edam: "http://edamontology.org/format_1929" # FASTA
+
+output:
+  vcf:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "${prefix}_cnv.vcf":
+          type: file
+          description: CNV calls in VCF format
+          pattern: "*_cnv.vcf"
+          ontologies:
+            - edam: "http://edamontology.org/format_3016" # VCF
+  bed:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "${prefix}_cnv.bed":
+          type: file
+          description: CNV calls in BED format
+          pattern: "*_cnv.bed"
+          ontologies:
+            - edam: "http://edamontology.org/format_3003" # BED
+  spc:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "${prefix}.spc.gz":
+          type: file
+          description: Spectre candidate file, usable as input to Spectre population mode
+          pattern: "*.spc.gz"
+          ontologies: []
+  karyotype:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "${prefix}_predicted_karyotype.txt":
+          type: file
+          description: Predicted sex chromosome karyotype
+          pattern: "*_predicted_karyotype.txt"
+          ontologies: []
+  versions_spectre:
+    - - "${task.process}":
+          type: string
+          description: The name of the process
+      - "spectre":
+          type: string
+          description: The name of the tool
+      - "spectre version 2>&1 | sed 's/.*version: //'":
+          type: eval
+          description: The expression to obtain the version of the tool
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - spectre:
+          type: string
+          description: The name of the tool
+      - spectre version 2>&1 | sed 's/.*version: //':
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "@DylanMHouse"
+maintainers:
+  - "@DylanMHouse"

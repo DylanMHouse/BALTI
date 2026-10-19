@@ -1,50 +1,67 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
 name: "callsv"
-## TODO nf-core: Add a description of the subworkflow and list keywords
-description: Sort SAM/BAM/CRAM file
+description: Call structural variants from long-read alignments with Sniffles, and
+  large copy number variants with Spectre from mosdepth binned coverage and SNV calls.
 keywords:
-  - sort
-  - bam
-  - sam
-  - cram
-## TODO nf-core: Add a list of the modules and/or subworkflows used in the subworkflow
+  - structural variants
+  - cnv
+  - sniffles
+  - spectre
+  - long-read
 components:
-  - samtools/sort
-  - samtools/index
-## TODO nf-core: List all of the channels used as input with a description and their structure
+  - sniffles
+  - mosdepth
+  - spectre/cnvcaller
 input:
-  - ch_bam:
+  - ch_input:
       type: file
       description: |
-        The input channel containing the BAM/CRAM/SAM files
-        Structure: [ val(meta), path(bam) ]
-      pattern: "*.{bam/cram/sam}"
-## TODO nf-core: List all of the channels used as output with a descriptions and their structure
+        Aligned reads
+        Structure: [ val(meta), path(bam), path(bai) ]
+      pattern: "*.{bam,bai}"
+  - ch_snv:
+      type: file
+      description: |
+        SNV calls for the same samples (e.g. from Clair3), used by Spectre
+        Structure: [ val(meta), path(vcf) ]
+      pattern: "*.{vcf,vcf.gz}"
+  - ch_fasta:
+      type: file
+      description: |
+        Reference genome
+        Structure: [ val(meta), path(fasta) ]
+      pattern: "*.{fa,fasta}"
 output:
-  - bam:
+  - sv_vcf:
       type: file
       description: |
-        Channel containing BAM files
-        Structure: [ val(meta), path(bam) ]
-      pattern: "*.bam"
-  - bai:
+        Sniffles SV calls
+        Structure: [ val(meta), path(vcf.gz) ]
+      pattern: "*.vcf.gz"
+  - sv_tbi:
       type: file
       description: |
-        Channel containing indexed BAM (BAI) files
-        Structure: [ val(meta), path(bai) ]
-      pattern: "*.bai"
-  - csi:
+        Index of the Sniffles SV calls
+        Structure: [ val(meta), path(vcf.gz.tbi) ]
+      pattern: "*.vcf.gz.tbi"
+  - cnv_vcf:
       type: file
       description: |
-        Channel containing CSI files
-        Structure: [ val(meta), path(csi) ]
-      pattern: "*.csi"
-  - versions:
+        Spectre CNV calls
+        Structure: [ val(meta), path(vcf) ]
+      pattern: "*_cnv.vcf"
+  - cnv_bed:
       type: file
       description: |
-        File containing software versions
-        Structure: [ path(versions.yml) ]
-      pattern: "versions.yml"
+        Spectre CNV calls in BED format
+        Structure: [ val(meta), path(bed) ]
+      pattern: "*_cnv.bed"
+  - karyotype:
+      type: file
+      description: |
+        Spectre predicted sex chromosome karyotype
+        Structure: [ val(meta), path(txt) ]
+      pattern: "*_predicted_karyotype.txt"
 authors:
   - "@DylanMHouse"
 maintainers:

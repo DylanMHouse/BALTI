@@ -5,9 +5,9 @@ include { BCFTOOLS_VIEW as BCFTOOLS_VIEW_CLAIR3 } from '../../../modules/nf-core
 workflow CALLSNV {
 
     take:
-    ch_input // channel
-    ch_fasta
-    ch_fai
+    ch_input // channel [ val(meta), path(bam), path(bai), val(packaged_model), path(user_model), val(platform) ]
+    ch_fasta // channel: [ val(meta), path(fasta) ]
+    ch_fai   // channel: [ val(meta), path(fai) ]
 
     main:
 
@@ -35,7 +35,7 @@ workflow CALLSNV {
         : channel.value([])
 
 
-    ch_clair3_output = ch_vcf.combine(ch_tbi)
+    ch_clair3_output = ch_vcf.join(ch_tbi, by: 0)
 
     BCFTOOLS_VIEW_CLAIR3(
         ch_clair3_output,

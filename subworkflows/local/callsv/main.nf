@@ -1,28 +1,47 @@
-// TODO nf-core: If in doubt look at other nf-core/subworkflows to see how we are doing things! :)
-//               https://github.com/nf-core/modules/tree/master/subworkflows
-//               You can also ask for help via your pull request or on the #subworkflows channel on the nf-core Slack workspace:
-//               https://nf-co.re/join
-// TODO nf-core: A subworkflow SHOULD import at least two modules
+// Structural variant calling: Sniffles for SVs from split/spanning reads, Spectre for large CNVs (>100kb) from binned coverage
 
-include { SAMTOOLS_SORT      } from '../../../modules/nf-core/samtools/sort/main'
-include { SAMTOOLS_INDEX     } from '../../../modules/nf-core/samtools/index/main'
+include { SNIFFLES                      } from '../../../modules/nf-core/sniffles/main'
+include { MOSDEPTH as MOSDEPTH_SPECTRE  } from '../../../modules/nf-core/mosdepth/main'
+include { SPECTRE_CNVCALLER             } from '../../../modules/local/spectre/cnvcaller/main'
 
 workflow CALLSV {
 
     take:
-    // TODO nf-core: edit input (take) channels
-    ch_bam // channel: [ val(meta), [ bam ] ]
+    ch_input // channel: [ val(meta), path(bam), path(bai) ]
+    ch_snv   // channel: [ val(meta), path(vcf) ] small variant calls for the same samples, used by Spectre
+    ch_fasta // channel: [ val(meta), path(fasta) ]
 
     main:
-    // TODO nf-core: substitute modules here for the modules of your subworkflow
 
-    SAMTOOLS_SORT ( ch_bam )
+    SNIFFLES(
+        ch_input.map { meta, bam, bai -> [ meta, bam, bai, [] ] },
+        ch_fasta,
+        [ [:], [] ],
+        true,
+        false
+    )
 
-    SAMTOOLS_INDEX ( SAMTOOLS_SORT.out.bam )
+    // Spectre needs binned coverage; the window size is set with ext.args (--by) in conf/modules.config
+    MOSDEPTH_SPECTRE(
+        ch_input.map { meta, bam, bai -> [ meta, bam, bai, [] ] },
+        ch_fasta,
+        []
+    )
+
+    ch_spectre_input = MOSDEPTH_SPECTRE.out.summary_txt
+        .join(MOSDEPTH_SPECTRE.out.regions_bed, by: 0)
+        .join(MOSDEPTH_SPECTRE.out.regions_csi, by: 0)
+        .join(ch_snv, by: 0)
+
+    SPECTRE_CNVCALLER(
+        ch_spectre_input,
+        ch_fasta
+    )
 
     emit:
-    // TODO nf-core: edit emitted channels
-    bam      = SAMTOOLS_SORT.out.bam           // channel: [ val(meta), [ bam ] ]
-    bai      = SAMTOOLS_INDEX.out.bai          // channel: [ val(meta), [ bai ] ]
-    csi      = SAMTOOLS_INDEX.out.csi          // channel: [ val(meta), [ csi ] ]
+    sv_vcf    = SNIFFLES.out.vcf                  // channel: [ val(meta), path(vcf.gz) ]
+    sv_tbi    = SNIFFLES.out.tbi                  // channel: [ val(meta), path(vcf.gz.tbi) ]
+    cnv_vcf   = SPECTRE_CNVCALLER.out.vcf         // channel: [ val(meta), path(vcf) ]
+    cnv_bed   = SPECTRE_CNVCALLER.out.bed         // channel: [ val(meta), path(bed) ]
+    karyotype = SPECTRE_CNVCALLER.out.karyotype   // channel: [ val(meta), path(txt) ]
 }

@@ -1,50 +1,67 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
 name: "phasehaplotag"
-## TODO nf-core: Add a description of the subworkflow and list keywords
-description: Sort SAM/BAM/CRAM file
+description: Call 5mC modifications, co-phase SNVs, SVs and modifications, and tag
+  reads by haplotype with LongPhase.
 keywords:
-  - sort
-  - bam
-  - sam
-  - cram
-## TODO nf-core: Add a list of the modules and/or subworkflows used in the subworkflow
+  - phase
+  - haplotag
+  - methylation
+  - longphase
+  - long-read
 components:
-  - samtools/sort
-  - samtools/index
-## TODO nf-core: List all of the channels used as input with a description and their structure
+  - longphase/modcall
+  - longphase/phase
+  - longphase/haplotag
 input:
-  - ch_bam:
+  - ch_input:
       type: file
       description: |
-        The input channel containing the BAM/CRAM/SAM files
-        Structure: [ val(meta), path(bam) ]
-      pattern: "*.{bam/cram/sam}"
-## TODO nf-core: List all of the channels used as output with a descriptions and their structure
+        Aligned reads (with MM/ML tags for modcall), SNV calls and optional SV calls ([] if none)
+        Structure: [ val(meta), path(bam), path(bai), path(snvs), path(svs) ]
+      pattern: "*.{bam,bai,vcf,vcf.gz}"
+  - ch_fasta:
+      type: file
+      description: |
+        Reference genome
+        Structure: [ val(meta), path(fasta) ]
+      pattern: "*.{fa,fasta}"
+  - ch_fai:
+      type: file
+      description: |
+        Reference genome index
+        Structure: [ val(meta), path(fai) ]
+      pattern: "*.fai"
 output:
   - bam:
       type: file
       description: |
-        Channel containing BAM files
+        Haplotagged reads (HP/PS tags)
         Structure: [ val(meta), path(bam) ]
       pattern: "*.bam"
-  - bai:
+  - snv_vcf:
       type: file
       description: |
-        Channel containing indexed BAM (BAI) files
-        Structure: [ val(meta), path(bai) ]
-      pattern: "*.bai"
-  - csi:
+        Phased SNVs
+        Structure: [ val(meta), path(vcf.gz) ]
+      pattern: "*.vcf.gz"
+  - sv_vcf:
       type: file
       description: |
-        Channel containing CSI files
-        Structure: [ val(meta), path(csi) ]
-      pattern: "*.csi"
-  - versions:
+        Phased SVs, when SVs were given
+        Structure: [ val(meta), path(vcf.gz) ]
+      pattern: "*_SV.vcf.gz"
+  - mod_vcf:
       type: file
       description: |
-        File containing software versions
-        Structure: [ path(versions.yml) ]
-      pattern: "versions.yml"
+        Phased modifications
+        Structure: [ val(meta), path(vcf.gz) ]
+      pattern: "*_mod.vcf.gz"
+  - modcall_vcf:
+      type: file
+      description: |
+        Unphased modification calls from modcall
+        Structure: [ val(meta), path(vcf.gz) ]
+      pattern: "*.vcf.gz"
 authors:
   - "@DylanMHouse"
 maintainers:

@@ -1,50 +1,49 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
 name: "callsnv"
-## TODO nf-core: Add a description of the subworkflow and list keywords
-description: Sort SAM/BAM/CRAM file
+description: Call SNVs and small indels from long-read alignments with Clair3, then
+  filter the calls with bcftools view (optional --regions, --targets and --sample_names).
 keywords:
-  - sort
-  - bam
-  - sam
-  - cram
-## TODO nf-core: Add a list of the modules and/or subworkflows used in the subworkflow
+  - snv
+  - variant calling
+  - clair3
+  - bcftools
+  - long-read
 components:
-  - samtools/sort
-  - samtools/index
-## TODO nf-core: List all of the channels used as input with a description and their structure
+  - clair3
+  - bcftools/view
 input:
-  - ch_bam:
+  - ch_input:
       type: file
       description: |
-        The input channel containing the BAM/CRAM/SAM files
-        Structure: [ val(meta), path(bam) ]
-      pattern: "*.{bam/cram/sam}"
-## TODO nf-core: List all of the channels used as output with a descriptions and their structure
+        Aligned reads with the Clair3 model to use. Provide either a packaged model name
+        (with user_model as []) or a user model directory (with packaged_model as []).
+        Structure: [ val(meta), path(bam), path(bai), val(packaged_model), path(user_model), val(platform) ]
+      pattern: "*.{bam,bai}"
+  - ch_fasta:
+      type: file
+      description: |
+        Reference genome
+        Structure: [ val(meta), path(fasta) ]
+      pattern: "*.{fa,fasta}"
+  - ch_fai:
+      type: file
+      description: |
+        Reference genome index
+        Structure: [ val(meta), path(fai) ]
+      pattern: "*.fai"
 output:
-  - bam:
+  - vcf:
       type: file
       description: |
-        Channel containing BAM files
-        Structure: [ val(meta), path(bam) ]
-      pattern: "*.bam"
-  - bai:
+        Filtered SNV/indel calls
+        Structure: [ val(meta), path(vcf) ]
+      pattern: "*.{vcf,vcf.gz,bcf,bcf.gz}"
+  - index:
       type: file
       description: |
-        Channel containing indexed BAM (BAI) files
-        Structure: [ val(meta), path(bai) ]
-      pattern: "*.bai"
-  - csi:
-      type: file
-      description: |
-        Channel containing CSI files
-        Structure: [ val(meta), path(csi) ]
-      pattern: "*.csi"
-  - versions:
-      type: file
-      description: |
-        File containing software versions
-        Structure: [ path(versions.yml) ]
-      pattern: "versions.yml"
+        Index of the filtered calls, when bcftools is asked to write one
+        Structure: [ val(meta), path(index) ]
+      pattern: "*.{tbi,csi}"
 authors:
   - "@DylanMHouse"
 maintainers:
