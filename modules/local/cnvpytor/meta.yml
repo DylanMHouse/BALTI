@@ -1,0 +1,120 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "cnvpytor"
+description: Call copy number variants from read depth with CNVpytor, running the
+  -rd, -gc, -his, -partition and -call steps on one .pytor root file and exporting
+  the calls as VCF and TSV.
+keywords:
+  - cnv
+  - copy number
+  - read depth
+  - structural variants
+  - genomics
+tools:
+  - "cnvpytor":
+      description: "CNVpytor is a Python package and command line tool for CNV/CNA
+        detection and analysis from read depth and allele imbalance in whole-genome
+        sequencing."
+      homepage: "https://github.com/abyzovlab/CNVpytor"
+      documentation: "https://github.com/abyzovlab/CNVpytor/blob/master/GettingStarted.md"
+      tool_dev_url: "https://github.com/abyzovlab/CNVpytor"
+      doi: "10.1093/gigascience/giab074"
+      licence: ["MIT"]
+      identifier: "biotools:cnvpytor"
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - bam:
+        type: file
+        description: Sorted BAM/CRAM file
+        pattern: "*.{bam,cram}"
+        ontologies:
+          - edam: "http://edamontology.org/format_2572" # BAM
+          - edam: "http://edamontology.org/format_3462" # CRAM
+    - bai:
+        type: file
+        description: Index of the BAM/CRAM file
+        pattern: "*.{bai,crai,csi}"
+        ontologies: []
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing reference information
+          e.g. `[ id:'genome' ]`
+    - fasta:
+        type: file
+        description: Reference the reads were aligned to; used to decode CRAM and for GC correction
+        pattern: "*.{fa,fasta,fna}"
+        ontologies:
+          - edam: "http://edamontology.org/format_1929" # FASTA
+  - bin_size:
+      type: integer
+      description: Bin size in bp for the histogram, partition and calling steps
+
+output:
+  pytor:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "${prefix}.pytor":
+          type: file
+          description: CNVpytor root file with read depth, GC, histograms, partition and calls; can be reopened with cnvpytor -view
+          pattern: "*.pytor"
+          ontologies: []
+  vcf:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "${prefix}.cnvpytor.vcf":
+          type: file
+          description: CNV calls in VCF format
+          pattern: "*.cnvpytor.vcf"
+          ontologies:
+            - edam: "http://edamontology.org/format_3016" # VCF
+  tsv:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "${prefix}.cnvpytor.tsv":
+          type: file
+          description: |
+            CNV calls as printed by cnvpytor -call: type, region, size, normalized read depth,
+            e-values 1-4, q0, pN and dG
+          pattern: "*.cnvpytor.tsv"
+          ontologies:
+            - edam: "http://edamontology.org/format_3475" # TSV
+  versions_cnvpytor:
+    - - "${task.process}":
+          type: string
+          description: The name of the process
+      - "cnvpytor":
+          type: string
+          description: The name of the tool
+      - "cnvpytor --version 2>&1 | sed -n 's/.*CNVpytor //p'":
+          type: eval
+          description: The expression to obtain the version of the tool
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - cnvpytor:
+          type: string
+          description: The name of the tool
+      - cnvpytor --version 2>&1 | sed -n 's/.*CNVpytor //p':
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "@DylanMHouse"
+maintainers:
+  - "@DylanMHouse"

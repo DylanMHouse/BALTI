@@ -16,6 +16,9 @@ include { PREPAREBAM                  } from '../subworkflows/local/preparebam'
 include { CALLSNV                     } from '../subworkflows/local/callsnv'
 include { CALLSV                      } from '../subworkflows/local/callsv'
 include { PHASEHAPLOTAG               } from '../subworkflows/local/phasehaplotag'
+include { IMMUNETYPING                } from '../subworkflows/local/immunetyping'
+include { CNVPYTOR                    } from '../modules/local/cnvpytor/main'
+include { STRDUST                     } from '../modules/nf-core/strdust/main'
 
 
 include { paramsSummaryMultiqc        } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -127,6 +130,33 @@ workflow BALTI {
             .first()
         : channel.value([ params.clair3_model, [], 'ont' ])
 
+    // SpecImmune: typing runs on the haplotagged BAM, so it needs --phasing
+    def specimmune_genes = params.specimmune_genes.tokenize(',')*.trim()
+    if (params.specimmune) {
+        if (!params.phasing) {
+            error("--specimmune types reads from the haplotagged BAM, so it needs --phasing")
+        }
+        if (!params.specimmune_db) {
+            error("--specimmune needs --specimmune_db, the folder built by SpecImmune's make_db.py")
+        }
+        def unknown_genes = specimmune_genes - ['HLA', 'KIR', 'CYP', 'IG_TR']
+        if (unknown_genes) {
+            error("--specimmune_genes takes HLA, KIR, CYP and IG_TR, not: ${unknown_genes.join(', ')}")
+        }
+        if (specimmune_genes.intersect(['CYP', 'IG_TR']) && !params.specimmune_hg38) {
+            error("CYP and IG_TR typing need --specimmune_hg38, a no-alt hg38 fasta (bwa-indexed, with .fai)")
+        }
+    }
+
+    def ch_specimmune_db = params.specimmune_db
+        ? channel.fromPath(params.specimmune_db, type: 'dir', checkIfExists: true).first()
+        : channel.value([])
+
+    // Stage the fasta with its .fai and bwa index files, otherwise SpecImmune rebuilds the index in every task
+    def ch_specimmune_hg38 = params.specimmune_hg38
+        ? channel.value(['', '.fai', '.amb', '.ann', '.bwt', '.pac', '.sa'].collect { suffix -> file("${params.specimmune_hg38}${suffix}", checkIfExists: true) })
+        : channel.value([])
+
 
 
 
@@ -222,6 +252,15 @@ workflow BALTI {
         ch_fasta
         )
 
+    // CNVpytor calls read depth CNVs at a finer bin size than Spectre's >100kb calls
+    if (params.cnvpytor) {
+        CNVPYTOR(
+            ch_input_bam,
+            ch_fasta,
+            params.cnvpytor_bin_size
+            )
+    }
+
     /*
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         PHASING & HAPLOTAGGING
@@ -239,6 +278,22 @@ workflow BALTI {
             ch_fasta,
             SAMTOOLS_FAIDX.out.fai.first()
             )
+
+        /*
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            IMMUNE GENE TYPING
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        */
+
+        if (params.specimmune) {
+            IMMUNETYPING(
+                PHASEHAPLOTAG.out.bam.map { meta, bam -> [ meta, bam, [] ] },
+                ch_fasta,
+                channel.fromList(specimmune_genes),
+                ch_specimmune_db,
+                ch_specimmune_hg38
+                )
+        }
     }
     /*
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

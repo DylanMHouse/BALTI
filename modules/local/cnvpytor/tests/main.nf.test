@@ -1,0 +1,79 @@
+nextflow_process {
+
+    name "Test Process CNVPYTOR"
+    script "../main.nf"
+    process "CNVPYTOR"
+
+    tag "modules"
+    tag "modules_local"
+    tag "cnvpytor"
+
+    // 40kb of chr22 at ~13x. The chr22:24-25Mb savana BAMs used elsewhere are too sparse for CNVpytor's
+    // read depth statistics (it divides by the autosomal mean, which comes out as 0)
+    test("homo_sapiens - ont - bam - fasta") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'test' ],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/nanopore/bam/test.sorted.phased.bam', checkIfExists: true),
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/nanopore/bam/test.sorted.phased.bam.bai', checkIfExists: true)
+                ]
+                input[1] = [
+                    [ id:'genome' ],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true)
+                ]
+                input[2] = 1000
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                // The VCF sample column is named after the .pytor file
+                { assert path(process.out.vcf[0][1]).text.contains("FORMAT\ttest") },
+                // .pytor is HDF5 and the VCF has a fileDate, so neither is byte-stable
+                { assert snapshot(
+                    process.out.pytor.collect { meta, pytor -> [ meta, file(pytor).name ] },
+                    process.out.vcf.collect { meta, vcf -> [ meta, file(vcf).name, path(vcf).vcf.variantsMD5 ] },
+                    process.out.tsv,
+                    process.out.findAll { key, val -> key.startsWith('versions') }
+                ).match() }
+            )
+        }
+
+    }
+
+    test("homo_sapiens - ont - bam - fasta - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'test' ],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/nanopore/bam/test.sorted.phased.bam', checkIfExists: true),
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/nanopore/bam/test.sorted.phased.bam.bai', checkIfExists: true)
+                ]
+                input[1] = [
+                    [ id:'genome' ],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true)
+                ]
+                input[2] = 1000
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+}

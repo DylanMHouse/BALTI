@@ -1,0 +1,102 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "specimmune_typing"
+description: Type HLA, KIR, CYP or IG/TR genes from long reads with SpecImmune.
+keywords:
+  - hla
+  - kir
+  - cyp
+  - immune
+  - typing
+  - long-read
+tools:
+  - "specimmune":
+      description: "Typing of polymorphic immune genes (HLA, KIR, IG, TCR) and CYP
+        pharmacogenes from long-read data."
+      homepage: "https://github.com/deepomicslab/SpecImmune"
+      documentation: "https://github.com/deepomicslab/SpecImmune/blob/main/README.md"
+      tool_dev_url: "https://github.com/deepomicslab/SpecImmune"
+      doi: ""
+      licence: ["MIT"]
+      identifier: ""
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - gene_class:
+        type: string
+        description: Gene class to type, one of HLA, KIR, CYP, IG_TR
+    - fastq:
+        type: file
+        description: Reads for the gene class, e.g. from SPECIMMUNE_EXTRACTREADS
+        pattern: "*.{fastq,fastq.gz,fq,fq.gz}"
+        ontologies:
+          - edam: "http://edamontology.org/format_1930" # FASTQ
+  - db:
+      type: directory
+      description: SpecImmune database folder built with scripts/make_db.py
+  - hg38:
+      type: file
+      description: |
+        No-alt hg38 fasta with its .fai and bwa index files, needed for CYP and IG_TR.
+        Can be [] for HLA and KIR
+      pattern: "*.{fa,fasta,fna,fai,amb,ann,bwt,pac,sa}"
+      ontologies: []
+
+output:
+  result:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - gene_class:
+          type: string
+          description: Gene class that was typed
+      - "${gene_class}/${prefix}/${result}":
+          type: file
+          description: |
+            Main typing result: *.final.type.result.formatted.txt for HLA and KIR,
+            *.CYP.merge.type.result.txt for CYP, *.IG_TR_typing_result.txt for IG_TR
+          pattern: "*.txt"
+          ontologies: []
+  outdir:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - gene_class:
+          type: string
+          description: Gene class that was typed
+      - "${gene_class}/":
+          type: directory
+          description: All SpecImmune output (allele sequences, phased VCFs, binned reads, PDF report) under <gene_class>/<prefix>/
+  versions_specimmune:
+    - - "${task.process}":
+          type: string
+          description: The name of the process
+      - "specimmune":
+          type: string
+          description: The name of the tool
+      - "VERSION":
+          type: string
+          description: SpecImmune release in the container image
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - specimmune:
+          type: string
+          description: The name of the tool
+      - VERSION:
+          type: string
+          description: SpecImmune release in the container image
+authors:
+  - "@DylanMHouse"
+maintainers:
+  - "@DylanMHouse"

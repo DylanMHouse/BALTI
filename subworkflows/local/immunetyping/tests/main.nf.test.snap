@@ -1,0 +1,51 @@
+{
+    "homo_sapiens - ont - bam, HLA, CYP - stub": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "CYP",
+                    "test_T.CYP.merge.type.result.txt"
+                ],
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "HLA",
+                    "test_T.HLA.final.type.result.formatted.txt"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "CYP",
+                    "test_T.CYP.fastq.gz"
+                ],
+                [
+                    {
+                        "id": "test_T",
+                        "patient": "test",
+                        "type": "tumour"
+                    },
+                    "HLA",
+                    "test_T.HLA.fastq.gz"
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-19T19:43:31.851862589",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.7"
+        }
+    }
+}

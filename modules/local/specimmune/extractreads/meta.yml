@@ -1,0 +1,113 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "specimmune_extractreads"
+description: Extract reads in the HLA, KIR, CYP or IG/TR regions of an hg38 BAM/CRAM
+  into a FASTQ for SpecImmune typing.
+keywords:
+  - hla
+  - kir
+  - cyp
+  - immune
+  - typing
+  - long-read
+tools:
+  - "specimmune":
+      description: "Typing of polymorphic immune genes (HLA, KIR, IG, TCR) and CYP
+        pharmacogenes from long-read data. ExtractReads.sh pulls the reads for one gene
+        class out of a BAM/CRAM mapped to hg38 with alt contigs."
+      homepage: "https://github.com/deepomicslab/SpecImmune"
+      documentation: "https://github.com/deepomicslab/SpecImmune/blob/main/README.md"
+      tool_dev_url: "https://github.com/deepomicslab/SpecImmune"
+      doi: ""
+      licence: ["MIT"]
+      identifier: ""
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - bam:
+        type: file
+        description: BAM/CRAM mapped to hg38 with alt (and HLA) contigs
+        pattern: "*.{bam,cram}"
+        ontologies:
+          - edam: "http://edamontology.org/format_2572" # BAM
+          - edam: "http://edamontology.org/format_3462" # CRAM
+    - bai:
+        type: file
+        description: BAM/CRAM index. Can be [], in which case the BAM is indexed first
+        pattern: "*.{bai,crai,csi}"
+        ontologies: []
+    - gene_class:
+        type: string
+        description: Gene class to extract, one of HLA, KIR, CYP, IG_TR
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing reference information
+          e.g. `[ id:'hg38' ]`
+    - fasta:
+        type: file
+        description: Reference fasta, only read for CRAM input
+        pattern: "*.{fa,fasta}"
+        ontologies:
+          - edam: "http://edamontology.org/format_1929" # FASTA
+
+output:
+  fastq:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - gene_class:
+          type: string
+          description: Gene class the reads were extracted for
+      - "${prefix}.${gene_class}.fastq.gz":
+          type: file
+          description: Extracted reads. Not emitted when no reads fall in the gene class regions
+          pattern: "*.fastq.gz"
+          ontologies:
+            - edam: "http://edamontology.org/format_1930" # FASTQ
+  bam:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - gene_class:
+          type: string
+          description: Gene class the reads were extracted for
+      - "${prefix}.${gene_class}.bam":
+          type: file
+          description: Extracted alignments
+          pattern: "*.bam"
+          ontologies:
+            - edam: "http://edamontology.org/format_2572" # BAM
+  versions_samtools:
+    - - "${task.process}":
+          type: string
+          description: The name of the process
+      - "samtools":
+          type: string
+          description: The name of the tool
+      - "samtools version | sed '1!d; s/samtools //'":
+          type: eval
+          description: The expression to obtain the version of the tool
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - samtools:
+          type: string
+          description: The name of the tool
+      - samtools version | sed '1!d; s/samtools //':
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "@DylanMHouse"
+maintainers:
+  - "@DylanMHouse"

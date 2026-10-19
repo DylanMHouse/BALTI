@@ -308,6 +308,39 @@
         "phasing": {
             "type": "boolean",
             "default": true
+        },
+        "cnvpytor": {
+            "type": "boolean",
+            "default": true,
+            "description": "Call CNVs from read depth with CNVpytor, alongside Spectre"
+        },
+        "cnvpytor_bin_size": {
+            "type": "integer",
+            "default": 1000,
+            "minimum": 100,
+            "description": "CNVpytor bin size in bp. Smaller bins resolve smaller CNVs but need more coverage"
+        },
+        "specimmune": {
+            "type": "boolean",
+            "description": "Type HLA, KIR, CYP and IG/TR genes with SpecImmune from the haplotagged BAM. Needs --phasing"
+        },
+        "specimmune_genes": {
+            "type": "string",
+            "default": "HLA,KIR,CYP,IG_TR",
+            "pattern": "^(HLA|KIR|CYP|IG_TR)(,(HLA|KIR|CYP|IG_TR))*$",
+            "description": "Comma-separated gene classes to type with SpecImmune"
+        },
+        "specimmune_db": {
+            "type": "string",
+            "format": "directory-path",
+            "exists": true,
+            "description": "SpecImmune database folder built with scripts/make_db.py"
+        },
+        "specimmune_hg38": {
+            "type": "string",
+            "format": "file-path",
+            "exists": true,
+            "description": "No-alt hg38 fasta for CYP and IG_TR typing, with its .fai and bwa index files next to it"
         }
     }
 }

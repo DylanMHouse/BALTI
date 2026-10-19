@@ -1,0 +1,93 @@
+nextflow_process {
+
+    name "Test Process SPECIMMUNE_EXTRACTREADS"
+    script "../main.nf"
+    process "SPECIMMUNE_EXTRACTREADS"
+
+    tag "modules"
+    tag "modules_local"
+    tag "specimmune"
+    tag "specimmune/extractreads"
+
+    // COLO829 ONT BAM subset to chr22:24-25Mb, with no index as it would come from LONGPHASE_HAPLOTAG.
+    // It overlaps the IGL region on chr22 but has no HLA contigs.
+    test("homo_sapiens - ont - bam, IG_TR") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'test' ],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/nanopore/bam/savana/colo829.PAU61426.sup.chr22.subset.0.05.bam', checkIfExists: true),
+                    [],
+                    'IG_TR'
+                ]
+                input[1] = [ [:], [] ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.fastq.collect { meta, gene_class, fq -> [ meta, gene_class, file(fq).name, path(fq).linesGzip.size() ] },
+                    process.out.bam.collect { meta, gene_class, bam_file -> [ meta, gene_class, file(bam_file).name, bam(bam_file).getReadsMD5() ] },
+                    process.out.findAll { key, val -> key.startsWith('versions') }
+                ).match() }
+            )
+        }
+    }
+
+    test("homo_sapiens - ont - bam, HLA - no reads in regions") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'test' ],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/nanopore/bam/savana/colo829.PAU61426.sup.chr22.subset.0.05.bam', checkIfExists: true),
+                    [],
+                    'HLA'
+                ]
+                input[1] = [ [:], [] ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                // nothing for typing to run on
+                { assert process.out.fastq.size() == 0 },
+                { assert process.out.bam.size() == 1 }
+            )
+        }
+    }
+
+    test("homo_sapiens - ont - bam, IG_TR - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'test' ],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/nanopore/bam/savana/colo829.PAU61426.sup.chr22.subset.0.05.bam', checkIfExists: true),
+                    [],
+                    'IG_TR'
+                ]
+                input[1] = [ [:], [] ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out).match() }
+            )
+        }
+    }
+}

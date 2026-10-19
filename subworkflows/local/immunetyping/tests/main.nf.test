@@ -1,0 +1,55 @@
+nextflow_workflow {
+
+    name "Test Subworkflow IMMUNETYPING"
+    script "../main.nf"
+    workflow "IMMUNETYPING"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "subworkflows/immunetyping"
+    tag "specimmune/extractreads"
+    tag "specimmune/typing"
+
+    // Stub only: a real run needs the SpecImmune database (make_db.py) and a bwa-indexed no-alt hg38,
+    // neither of which is in nf-core/test-datasets. The BAM has no index, as it comes from LONGPHASE_HAPLOTAG.
+    test("homo_sapiens - ont - bam, HLA, CYP - stub") {
+
+        options "-stub"
+
+        when {
+            workflow {
+                """
+                def db = file("\${workDir}/specimmune_db")
+                db.mkdirs()
+
+                input[0] = Channel.of([
+                    [ id:'test_T', patient:'test', type:'tumour' ],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/nanopore/bam/savana/colo829.PAU61426.sup.chr22.subset.0.05.bam', checkIfExists: true),
+                    []
+                ])
+                input[1] = Channel.value([
+                    [ id:'hg38_chr22' ],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/chr22/sequence/hg38.chr22.fasta', checkIfExists: true)
+                ])
+                input[2] = Channel.of('HLA', 'CYP')
+                input[3] = Channel.value(db)
+                input[4] = Channel.value([
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/chr22/sequence/hg38.chr22.fasta', checkIfExists: true),
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/chr22/sequence/hg38.chr22.fasta.fai', checkIfExists: true)
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.result.size() == 2 },
+                { assert snapshot(
+                    workflow.out.result.collect { meta, gene_class, txt -> [ meta, gene_class, file(txt).name ] }.sort { entry -> entry[1] },
+                    workflow.out.fastq.collect { meta, gene_class, fq -> [ meta, gene_class, file(fq).name ] }.sort { entry -> entry[1] }
+                ).match() }
+            )
+        }
+    }
+}

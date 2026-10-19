@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "immunetyping"
+description: Type HLA, KIR, CYP and IG/TR genes with SpecImmune from reads extracted out of a haplotagged BAM
+keywords:
+  - hla
+  - kir
+  - cyp
+  - immune
+  - typing
+  - long-read
+components:
+  - specimmune/extractreads
+  - specimmune/typing
+input:
+  - ch_bam:
+      type: file
+      description: |
+        BAM mapped to hg38 with alt (and HLA) contigs; bai can be []
+        Structure: [ val(meta), path(bam), path(bai) ]
+      pattern: "*.{bam,cram}"
+  - ch_fasta:
+      type: file
+      description: |
+        Reference fasta, only read for CRAM input
+        Structure: [ val(meta), path(fasta) ]
+      pattern: "*.{fa,fasta}"
+  - ch_gene_classes:
+      type: string
+      description: |
+        Gene classes to type, any of HLA, KIR, CYP, IG_TR
+        Structure: val(gene_class)
+  - ch_db:
+      type: directory
+      description: |
+        SpecImmune database folder built with scripts/make_db.py
+        Structure: path(db)
+  - ch_hg38:
+      type: file
+      description: |
+        No-alt hg38 fasta with its .fai and bwa index files, needed for CYP and IG_TR; can be []
+        Structure: [ path(fasta), path(index files) ]
+output:
+  - result:
+      type: file
+      description: |
+        Main typing result for each sample and gene class
+        Structure: [ val(meta), val(gene_class), path(txt) ]
+      pattern: "*.txt"
+  - outdir:
+      type: directory
+      description: |
+        All SpecImmune output, under <gene_class>/<meta.id>/
+        Structure: [ val(meta), val(gene_class), path(dir) ]
+  - fastq:
+      type: file
+      description: |
+        Extracted reads; missing for gene classes with no reads in the BAM
+        Structure: [ val(meta), val(gene_class), path(fastq.gz) ]
+      pattern: "*.fastq.gz"
+authors:
+  - "@DylanMHouse"
+maintainers:
+  - "@DylanMHouse"

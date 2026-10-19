@@ -1,0 +1,101 @@
+{
+    "homo_sapiens - ont - bam, IG_TR": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "IG_TR",
+                    "test.IG_TR.fastq.gz",
+                    680
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "IG_TR",
+                    "test.IG_TR.bam",
+                    "a86b8f5f6464f448abd65aa8c08af36e"
+                ]
+            ],
+            {
+                "versions_samtools": [
+                    [
+                        "SPECIMMUNE_EXTRACTREADS",
+                        "samtools",
+                        "1.21"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-19T20:18:50.14338471",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.7"
+        }
+    },
+    "homo_sapiens - ont - bam, IG_TR - stub": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "IG_TR",
+                        "test.IG_TR.fastq.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "IG_TR",
+                        "test.IG_TR.bam:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "2": [
+                    [
+                        "SPECIMMUNE_EXTRACTREADS",
+                        "samtools",
+                        "1.21"
+                    ]
+                ],
+                "bam": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "IG_TR",
+                        "test.IG_TR.bam:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "fastq": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "IG_TR",
+                        "test.IG_TR.fastq.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                    ]
+                ],
+                "versions_samtools": [
+                    [
+                        "SPECIMMUNE_EXTRACTREADS",
+                        "samtools",
+                        "1.21"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-19T20:18:59.228555542",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.7"
+        }
+    }
+}
