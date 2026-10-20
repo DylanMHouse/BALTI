@@ -20,6 +20,7 @@ include { IMMUNETYPING                } from '../subworkflows/local/immunetyping
 include { CNVPYTOR                    } from '../modules/local/cnvpytor/main'
 include { STRDUST                     } from '../modules/nf-core/strdust/main'
 include { MODKIT_PILEUP               } from '../modules/nf-core/modkit/pileup/main'
+include { CPSR                        } from '../subworkflows/local/cpsr'
 
 
 include { paramsSummaryMultiqc        } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -167,6 +168,21 @@ workflow BALTI {
         ? channel.fromPath(params.methylbed, checkIfExists: true).map { bed -> tuple([id: "methylbed"], bed) }.first()
         : channel.value([[:], []])
 
+    // Spectre metadata and blacklist: a file is staged here; a name of a file bundled with Spectre
+    // (e.g. hg38_metadata, hg38_blacklist_v1.0) is passed on the command line in conf/modules.config
+    def ch_spectre_metadata = params.spectre_metadata && !(params.spectre_metadata ==~ /(hg19|hg38|chm13v2)_metadata/)
+        ? channel.fromPath(params.spectre_metadata, checkIfExists: true).first()
+        : channel.value([])
+
+    def ch_spectre_blacklist = params.spectre_blacklist && !(params.spectre_blacklist ==~ /(hg19|hg38|chm13v2)_blacklist_v1\.0/)
+        ? channel.fromPath(params.spectre_blacklist, checkIfExists: true).first()
+        : channel.value([])
+
+    // CPSR needs the PCGR reference bundle and a VEP cache
+    if (params.cpsr && !(params.cpsr_refdata && params.cpsr_vep_cache)) {
+        error("--cpsr needs --cpsr_refdata (PCGR reference data) and --cpsr_vep_cache (VEP cache directory)")
+    }
+
 
 
 
@@ -251,6 +267,21 @@ workflow BALTI {
 
     /*
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        GERMLINE VARIANT REPORTING WITH CPSR
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    */
+
+    // CPSR reports cancer predisposition variants, so it only takes the germline calls
+    if (params.cpsr) {
+        CPSR(
+            CALLSNV.out.vcf.filter { meta, _vcf -> meta.type == 'germline' },
+            channel.fromPath(params.cpsr_refdata, type: 'dir', checkIfExists: true).first(),
+            channel.fromPath(params.cpsr_vep_cache, type: 'dir', checkIfExists: true).first()
+            )
+    }
+
+    /*
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         SV & CNV CALLS
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     */
@@ -259,7 +290,9 @@ workflow BALTI {
     CALLSV(
         ch_input_bam,
         CALLSNV.out.vcf,
-        ch_fasta
+        ch_fasta,
+        ch_spectre_metadata,
+        ch_spectre_blacklist
         )
 
     // CNVpytor calls read depth CNVs at a finer bin size than Spectre's >100kb calls

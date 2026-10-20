@@ -1,5 +1,5 @@
 process CPSR_RUN {
-    tag "${meta.patient}.${meta.sample}"
+    tag "${meta.id}"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"

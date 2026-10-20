@@ -10,6 +10,8 @@ workflow CALLSV {
     ch_input // channel: [ val(meta), path(bam), path(bai) ]
     ch_snv   // channel: [ val(meta), path(vcf) ] small variant calls for the same samples, used by Spectre
     ch_fasta // channel: [ val(meta), path(fasta) ]
+    ch_spectre_metadata  // channel: path(mdr) or [] (built-in metadata is set by name in conf/modules.config)
+    ch_spectre_blacklist // channel: path(bed) or [] (built-in blacklist is set by name in conf/modules.config)
 
     main:
 
@@ -35,7 +37,9 @@ workflow CALLSV {
 
     SPECTRE_CNVCALLER(
         ch_spectre_input,
-        ch_fasta
+        ch_fasta,
+        ch_spectre_metadata,
+        ch_spectre_blacklist
     )
 
     emit:

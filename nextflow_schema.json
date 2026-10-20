@@ -309,6 +309,16 @@
             "type": "boolean",
             "default": true
         },
+        "spectre_metadata": {
+            "type": "string",
+            "default": "hg38_metadata",
+            "description": "Spectre N-region metadata: hg19_metadata, hg38_metadata, chm13v2_metadata (bundled with Spectre) or a path to a .mdr file from `spectre removeNs`. Set to null to have Spectre build it from the fasta"
+        },
+        "spectre_blacklist": {
+            "type": "string",
+            "default": "hg38_blacklist_v1.0",
+            "description": "Regions for Spectre to ignore: hg19_blacklist_v1.0, hg38_blacklist_v1.0, chm13v2_blacklist_v1.0 (bundled with Spectre) or a path to a BED file"
+        },
         "cnvpytor": {
             "type": "boolean",
             "default": true,
@@ -365,6 +375,22 @@
             "exists": true,
             "pattern": "^\\S+\\.bed$",
             "description": "BED of regions to restrict the modkit pileup to. Without it, the whole genome is piled up"
+        },
+        "cpsr": {
+            "type": "boolean",
+            "description": "Report cancer predisposition variants in the germline sample's PASS SNVs with CPSR. Needs --cpsr_refdata and --cpsr_vep_cache"
+        },
+        "cpsr_refdata": {
+            "type": "string",
+            "format": "directory-path",
+            "exists": true,
+            "description": "PCGR/CPSR reference data bundle directory"
+        },
+        "cpsr_vep_cache": {
+            "type": "string",
+            "format": "directory-path",
+            "exists": true,
+            "description": "VEP cache directory for CPSR annotation"
         }
     }
 }

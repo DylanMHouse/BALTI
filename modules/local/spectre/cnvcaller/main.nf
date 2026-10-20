@@ -11,6 +11,8 @@ process SPECTRE_CNVCALLER {
     input:
     tuple val(meta), path(summary_txt), path(regions_bed), path(regions_csi), path(snv)
     tuple val(meta2), path(fasta)
+    path metadata  // optional
+    path blacklist // optional
 
     output:
     tuple val(meta), path("${prefix}_cnv.vcf")                , emit: vcf
@@ -25,6 +27,8 @@ process SPECTRE_CNVCALLER {
     script:
     def args = task.ext.args ?: ''
     prefix = task.ext.prefix ?: "${meta.id}"
+    def metadata_arg = metadata ? "--metadata ${metadata}" : ''
+    def blacklist_arg = blacklist ? "--blacklist ${blacklist}" : ''
     // Spectre looks up mosdepth files by sample ID, so they are linked under the prefix whatever mosdepth named them.
     // --bin-size must match the mosdepth window size, so it is read from the regions bed (a --bin-size in ext.args wins).
     """
@@ -44,6 +48,8 @@ process SPECTRE_CNVCALLER {
         --reference ${fasta} \\
         --snv ${snv} \\
         --threads $task.cpus \\
+        $metadata_arg \\
+        $blacklist_arg \\
         $args
 
     mv spectre/${prefix}.vcf ${prefix}_cnv.vcf

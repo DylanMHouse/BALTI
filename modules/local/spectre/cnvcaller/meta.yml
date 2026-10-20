@@ -60,6 +60,17 @@ input:
         pattern: "*.{fa,fasta,fa.gz,fasta.gz}"
         ontologies:
           - edam: "http://edamontology.org/format_1929" # FASTA
+  - metadata:
+      type: file
+      description: Optional N-region metadata from `spectre removeNs`; built from the fasta when missing
+      pattern: "*.mdr"
+      ontologies: []
+  - blacklist:
+      type: file
+      description: Optional BED of regions to ignore
+      pattern: "*.bed"
+      ontologies:
+        - edam: "http://edamontology.org/format_3003" # BED
 
 output:
   vcf:

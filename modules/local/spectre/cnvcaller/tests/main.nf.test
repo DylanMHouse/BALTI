@@ -68,6 +68,8 @@ nextflow_process {
                     [ id:'hg38_chr22' ],
                     file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/chr22/sequence/hg38.chr22.fasta', checkIfExists: true)
                 ]
+                input[2] = []
+                input[3] = []
                 """
             }
         }
@@ -96,6 +98,8 @@ nextflow_process {
                     [ id:'hg38_chr22' ],
                     file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/chr22/sequence/hg38.chr22.fasta', checkIfExists: true)
                 ]
+                input[2] = []
+                input[3] = []
                 """
             }
         }
