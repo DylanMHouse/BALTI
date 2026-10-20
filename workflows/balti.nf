@@ -19,6 +19,7 @@ include { PHASEHAPLOTAG               } from '../subworkflows/local/phasehaplota
 include { IMMUNETYPING                } from '../subworkflows/local/immunetyping'
 include { CNVPYTOR                    } from '../modules/local/cnvpytor/main'
 include { STRDUST                     } from '../modules/nf-core/strdust/main'
+include { MODKIT_PILEUP               } from '../modules/nf-core/modkit/pileup/main'
 
 
 include { paramsSummaryMultiqc        } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -162,6 +163,10 @@ workflow BALTI {
         ? channel.fromPath(params.strbed, checkIfExists: true).map { bed -> tuple([id: "strbed"], bed) }.first()
         : channel.value([[:], []])
 
+    def ch_methyl_bed = params.methylbed
+        ? channel.fromPath(params.methylbed, checkIfExists: true).map { bed -> tuple([id: "methylbed"], bed) }.first()
+        : channel.value([[:], []])
+
 
 
 
@@ -299,6 +304,21 @@ workflow BALTI {
                 ch_specimmune_hg38
                 )
         }
+    }
+
+    /*
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        METHYLATION CALLS WITH MODKIT_PILEUP
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    */
+
+    // Reads keep their MM/ML tags through SAMTOOLS_FASTQ (-T MM,ML) and minimap2 (-y)
+    if (params.methyl) {
+        MODKIT_PILEUP(
+            ch_input_bam,
+            ch_fasta_fai,
+            ch_methyl_bed
+            )
     }
 
     /*

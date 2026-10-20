@@ -353,6 +353,18 @@
             "exists": true,
             "pattern": "^\\S+\\.bed$",
             "description": "BED of STR regions for STRdust. Without it, STRdust genotypes its built-in hg38 pathogenic loci"
+        },
+        "methyl": {
+            "type": "boolean",
+            "default": true,
+            "description": "Pile up base modification calls (MM/ML tags) per site with modkit"
+        },
+        "methylbed": {
+            "type": "string",
+            "format": "file-path",
+            "exists": true,
+            "pattern": "^\\S+\\.bed$",
+            "description": "BED of regions to restrict the modkit pileup to. Without it, the whole genome is piled up"
         }
     }
 }
