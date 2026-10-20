@@ -157,6 +157,11 @@ workflow BALTI {
         ? channel.value(['', '.fai', '.amb', '.ann', '.bwt', '.pac', '.sa'].collect { suffix -> file("${params.specimmune_hg38}${suffix}", checkIfExists: true) })
         : channel.value([])
 
+    // STRdust optional BED file of STR regions; the module takes [ meta, bed ]
+    def ch_str_bed = params.strbed
+        ? channel.fromPath(params.strbed, checkIfExists: true).map { bed -> tuple([id: "strbed"], bed) }.first()
+        : channel.value([[:], []])
+
 
 
 
@@ -295,6 +300,22 @@ workflow BALTI {
                 )
         }
     }
+
+    /*
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        STR ANALYSIS with STRDust
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    */
+
+    if (params.strdust) {
+        STRDUST(
+            ch_input_bam,
+            ch_fasta,
+            SAMTOOLS_FAIDX.out.fai.first(),
+            ch_str_bed
+            )
+    }
+
     /*
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         MULTIQC

@@ -341,6 +341,18 @@
             "format": "file-path",
             "exists": true,
             "description": "No-alt hg38 fasta for CYP and IG_TR typing, with its .fai and bwa index files next to it"
+        },
+        "strdust": {
+            "type": "boolean",
+            "default": true,
+            "description": "Genotype short tandem repeats with STRdust"
+        },
+        "strbed": {
+            "type": "string",
+            "format": "file-path",
+            "exists": true,
+            "pattern": "^\\S+\\.bed$",
+            "description": "BED of STR regions for STRdust. Without it, STRdust genotypes its built-in hg38 pathogenic loci"
         }
     }
 }
